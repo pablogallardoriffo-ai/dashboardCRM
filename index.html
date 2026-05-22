@@ -10,27 +10,29 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --duoc-amarillo: #FFC107;
-            --duoc-gris: #2C3E50;
-            --duoc-gris-claro: #34495E;
-            --success: #27AE60;
+            --duoc-amarillo: #FFD700;
+            --duoc-azul: #1B3A5C;
+            --duoc-azul-claro: #2A5A8F;
+            --duoc-gris: #34495E;
+            --duoc-gris-claro: #5A7A9F;
+            --success: #2ECC71;
             --danger: #E74C3C;
             --warning: #F39C12;
             --info: #3498DB;
             --secondary: #95A5A6;
-            --text-color: #2C3E50;
+            --text-color: #1B3A5C;
             --bg-color: #FFFFFF;
-            --border-color: #ECF0F1;
+            --border-color: #E8EEF2;
             --card-bg: #FFFFFF;
-            --input-bg: #F8F9FA;
+            --input-bg: #F0F4F8;
         }
 
         body.dark-mode {
             --text-color: #ECF0F1;
-            --bg-color: #1A252F;
-            --border-color: #34495E;
-            --card-bg: #2C3E50;
-            --input-bg: #1A252F;
+            --bg-color: #1B3A5C;
+            --border-color: #2A5A8F;
+            --card-bg: #2A5A8F;
+            --input-bg: #1B3A5C;
         }
 
         body {
@@ -44,23 +46,49 @@
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, var(--duoc-gris) 0%, var(--duoc-gris-claro) 100%);
-            padding: 1.5rem 0;
+            background: linear-gradient(135deg, var(--duoc-azul) 0%, var(--duoc-azul-claro) 100%);
+            padding: 2rem 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            box-shadow: 4px 0 12px rgba(0,0,0,0.25);
             z-index: 200;
         }
 
         .sidebar-header {
-            padding: 1.5rem 1.5rem;
-            border-bottom: 2px solid rgba(255, 193, 7, 0.3);
-            margin-bottom: 1.5rem;
+            padding: 1.5rem 1rem;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.4);
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        .sidebar-logo { color: var(--duoc-amarillo); font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .sidebar-subtext { font-size: 0.7rem; color: var(--duoc-amarillo); opacity: 0.9; }
+        .logo-duoc {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-duoc-main {
+            color: var(--duoc-amarillo);
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+        }
+
+        .sidebar-subtext {
+            font-size: 0.7rem;
+            color: rgba(255, 215, 0, 0.8);
+            opacity: 1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
 
         .nav-tabs {
             display: flex;
@@ -114,31 +142,55 @@
         .logo-text { color: var(--duoc-amarillo); font-size: 1.2rem; font-weight: 700; }
 
         .theme-toggle {
-            width: 60px;
-            height: 34px;
-            background-color: #ccc;
-            border-radius: 34px;
+            width: 70px;
+            height: 38px;
+            background-color: #E8EEF2;
+            border-radius: 50px;
             position: relative;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.35s ease;
             border: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            padding: 0;
+            outline: none;
         }
 
-        .theme-toggle.dark { background-color: var(--duoc-amarillo); }
+        .theme-toggle:hover {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle.dark {
+            background-color: var(--duoc-azul);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .theme-toggle::before {
+            content: '☀️';
+            position: absolute;
+            left: 8px;
+            font-size: 18px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
 
         .theme-toggle::after {
-            content: '';
+            content: '🌙';
             position: absolute;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: white;
-            top: 2px;
-            left: 2px;
-            transition: left 0.3s;
+            right: 8px;
+            font-size: 18px;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
         }
 
-        .theme-toggle.dark::after { left: 28px; }
+        .theme-toggle.dark::before {
+            opacity: 0.3;
+        }
+
+        .theme-toggle.dark::after {
+            opacity: 1;
+        }
 
         .main-content { flex: 1; margin-left: 280px; }
         .container { max-width: 1920px; margin: 0 auto; padding: 2rem; }
@@ -478,8 +530,10 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo">DuocUC</div>
-            <div class="sidebar-subtext">Viña del Mar</div>
+            <div class="logo-duoc">
+                <div class="logo-duoc-main">DuocUC</div>
+                <div class="sidebar-subtext">Viña del Mar</div>
+            </div>
         </div>
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
@@ -712,6 +766,7 @@
                                 <option value="riesgo_legal">Riesgo Legal</option>
                                 <option value="queja_personal">Queja Personal</option>
                                 <option value="demora">Demora Respuesta</option>
+                                <option value="ortografia">Errores Ortográficos</option>
                             </select>
                         </div>
                         <div class="filter-item">
@@ -744,6 +799,10 @@
                         <div class="card-title">Demoras</div>
                         <div class="card-value" id="alertaDemoras">0</div>
                     </div>
+                    <div class="card danger">
+                        <div class="card-title">Errores Ortográficos</div>
+                        <div class="card-value" id="alertaOrtografia">0</div>
+                    </div>
                 </div>
 
                 <div class="card" style="margin-bottom: 2rem;">
@@ -757,11 +816,12 @@
                                     <th>Incongruencias</th>
                                     <th>Riesgos Legales</th>
                                     <th>Quejas Personal</th>
+                                    <th>Ortografía</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody id="topAlertasColaboradores">
-                                <tr><td colspan="6" style="text-align: center;">Cargando...</td></tr>
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -888,7 +948,34 @@
             suspension: ['suspender', 'pausar', 'mantener', 'se suspenda', 'segunda suspensión'],
             demoraResponsible: ['mucho tiempo', 'llevo meses', 'llevo días', 'lento', 'nunca responde', 'se demora', 'no responde', 'espero hace', 'hace semanas', 'hace meses', 'incumplimiento'],
             quejaPersonal: ['grosero', 'mala atención', 'descortés', 'no sabe', 'incompetente', 'flojo', 'no entiende', 'es lento', 'se demora', 'mala educación', 'falta de respeto'],
-            riesgoLegal: ['sernac', 'ministerio', 'reclamo', 'demanda', 'legal', 'legalidad', 'derecho', 'denuncia', 'abogado', 'tribunal', 'discriminación', 'cobro indebido']
+            riesgoLegal: ['sernac', 'ministerio', 'reclamo', 'demanda', 'legal', 'legalidad', 'derecho', 'denuncia', 'abogado', 'tribunal', 'discriminación', 'cobro indebido'],
+            // Faltas ortográficas comunes
+            ortografia: {
+                'q ': ' que ',
+                'pq': 'porque',
+                'q es': 'que es',
+                'tmb': 'también',
+                'tb': 'también',
+                'x': 'por',
+                'xq': 'porque',
+                'ñ': 'ñ',
+                'alumnno': 'alumno',
+                'requiere': 'requiere',
+                'asignatura': 'asignatura',
+                'docente': 'docente',
+                'disponible': 'disponible',
+                'información': 'información',
+                'aclaracion': 'aclaración',
+                'situacion': 'situación',
+                'solucion': 'solución',
+                'motivo': 'motivo',
+                'motibo': 'motivo',
+                'espesifico': 'específico',
+                'especifico': 'específico',
+                'aprob': 'aprobado',
+                'rechaz': 'rechazado',
+                'saludos cordiales': 'saludos cordiales'
+            }
         };
 
         // ============================================
@@ -1019,7 +1106,7 @@
                         aprobadas: 0,
                         rechazadas: 0,
                         parciales: 0,
-                        alertas: { incongruencias: 0, riesgoLegal: 0, quejaPersonal: 0, demora: 0 },
+                        alertas: { incongruencias: 0, riesgoLegal: 0, quejaPersonal: 0, demora: 0, ortografia: 0 },
                         movimientosTotal: 0,
                         tiemposRespuesta: [],
                         solicitudes: []
@@ -1102,6 +1189,43 @@
             if (palabrasDemora.length > 0) {
                 alerta.tipo.push('demora');
                 alerta.palabrasDetectadas = alerta.palabrasDetectadas.concat(palabrasDemora);
+            }
+
+            // DETECTAR FALTAS ORTOGRÁFICAS EN RESPUESTA DEL FUNCIONARIO
+            const textResolucionLower = (resolucion || '').toLowerCase();
+            let faltasOrtografia = [];
+            
+            // Buscar patrones de faltas comunes
+            const patronesOrto = [
+                { patron: /\bq\s+/, tipo: 'falta de palabra', palabra: 'que' },
+                { patron: /\bxq\b/, tipo: 'abreviatura', palabra: 'porque' },
+                { patron: /\bpq\b/, tipo: 'abreviatura', palabra: 'porque' },
+                { patron: /\btmb\b|\btb\b/, tipo: 'abreviatura', palabra: 'también' },
+                { patron: /\bx\s+/, tipo: 'abreviatura', palabra: 'por' },
+                { patron: /saludo|saludos/, tipo: 'sin cierre formal', palabra: 'Cierre poco profesional' },
+                { patron: /q es\b/, tipo: 'ortografía', palabra: 'que es' },
+                { patron: /especifico/, tipo: 'tilde faltante', palabra: 'específico' },
+                { patron: /situacion/, tipo: 'tilde faltante', palabra: 'situación' },
+                { patron: /solucion/, tipo: 'tilde faltante', palabra: 'solución' },
+                { patron: /aclaracion/, tipo: 'tilde faltante', palabra: 'aclaración' },
+                { patron: /motibo/, tipo: 'ortografía', palabra: 'motivo' }
+            ];
+
+            patronesOrto.forEach(p => {
+                if (p.patron.test(textResolucionLower)) {
+                    faltasOrtografia.push(p.palabra);
+                }
+            });
+
+            if (faltasOrtografia.length > 0) {
+                alerta.tipo.push('ortografia');
+                alerta.palabrasDetectadas = alerta.palabrasDetectadas.concat(faltasOrtografia);
+                if (dataAnalytics.colaboradores[propietario]) {
+                    if (!dataAnalytics.colaboradores[propietario].alertas.ortografia) {
+                        dataAnalytics.colaboradores[propietario].alertas.ortografia = 0;
+                    }
+                    dataAnalytics.colaboradores[propietario].alertas.ortografia++;
+                }
             }
 
             if (alerta.tipo.length > 0) {
@@ -1308,7 +1432,8 @@
                     incongruencias: datos.alertas.incongruencias,
                     riesgoLegal: datos.alertas.riesgoLegal,
                     quejasPersonal: datos.alertas.quejaPersonal,
-                    total: datos.alertas.incongruencias + datos.alertas.riesgoLegal + datos.alertas.quejaPersonal + datos.alertas.demora
+                    ortografia: datos.alertas.ortografia || 0,
+                    total: datos.alertas.incongruencias + datos.alertas.riesgoLegal + datos.alertas.quejaPersonal + datos.alertas.demora + (datos.alertas.ortografia || 0)
                 }))
                 .sort((a, b) => b.total - a.total)
                 .slice(0, 10);
@@ -1320,21 +1445,24 @@
                     <td>${c.incongruencias}</td>
                     <td>${c.riesgoLegal}</td>
                     <td>${c.quejasPersonal}</td>
-                    <td><span style="color: ${c.total > 5 ? '#E74C3C' : '#F39C12'}; font-weight: 700;">${c.total}</span></td>
+                    <td><span style="color: ${c.ortografia > 3 ? '#E74C3C' : c.ortografia > 0 ? '#F39C12' : '#27AE60'}; font-weight: 700;">${c.ortografia}</span></td>
+                    <td><span style="color: ${c.total > 8 ? '#E74C3C' : c.total > 3 ? '#F39C12' : '#27AE60'}; font-weight: 700;">${c.total}</span></td>
                 </tr>
             `).join('');
 
-            document.getElementById('topAlertasColaboradores').innerHTML = html || '<tr><td colspan="6" style="text-align: center;">Sin alertas</td></tr>';
+            document.getElementById('topAlertasColaboradores').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin alertas</td></tr>';
 
             const incongruencias = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.incongruencias, 0);
             const riesgosLegales = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.riesgoLegal, 0);
             const quejasPersonal = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.quejaPersonal, 0);
             const demoras = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.demora, 0);
+            const ortografia = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + (c.alertas.ortografia || 0), 0);
 
             document.getElementById('alertaIncongruencias').textContent = incongruencias;
             document.getElementById('alertaRiesgosLegales').textContent = riesgosLegales;
             document.getElementById('alertaQuejasPersonal').textContent = quejasPersonal;
             document.getElementById('alertaDemoras').textContent = demoras;
+            document.getElementById('alertaOrtografia').textContent = ortografia;
         }
 
         function actualizarDetalleAlertas() {
@@ -1346,7 +1474,8 @@
                         'incongruencia': '🔄',
                         'riesgo_legal': '⚖️',
                         'queja_personal': '😠',
-                        'demora': '⏱️'
+                        'demora': '⏱️',
+                        'ortografia': '✏️'
                     };
                     return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.25rem 0.5rem; background-color: var(--border-color); border-radius: 4px; font-size: 0.8rem;">${iconos[t] || '⚠️'} ${t.toUpperCase()}</span>`;
                 }).join('');
@@ -1404,7 +1533,7 @@
             let html = '';
             alertasFiltradas.forEach(alerta => {
                 const tiposAlerta = alerta.tipo.map(t => {
-                    const iconos = { 'incongruencia': '🔄', 'riesgo_legal': '⚖️', 'queja_personal': '😠', 'demora': '⏱️' };
+                    const iconos = { 'incongruencia': '🔄', 'riesgo_legal': '⚖️', 'queja_personal': '😠', 'demora': '⏱️', 'ortografia': '✏️' };
                     return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.25rem 0.5rem; background-color: var(--border-color); border-radius: 4px; font-size: 0.8rem;">${iconos[t] || '⚠️'} ${t.toUpperCase()}</span>`;
                 }).join('');
 
