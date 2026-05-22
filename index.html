@@ -408,6 +408,46 @@
             border-radius: 3px;
         }
 
+        .highlight-incongruencia {
+            background-color: #9B59B6;
+            color: #FFF;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .highlight-riesgo-legal {
+            background-color: #E74C3C;
+            color: #FFF;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .highlight-queja-personal {
+            background-color: #E67E22;
+            color: #FFF;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .highlight-demora {
+            background-color: #F39C12;
+            color: #FFF;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .highlight-ortografia {
+            background-color: #3498DB;
+            color: #FFF;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
         .stat-box {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -849,13 +889,50 @@
                         <div class="card-value" id="movPromedio">0</div>
                     </div>
                     <div class="card warning">
-                        <div class="card-title">Solicitudes con >3 Movimientos</div>
+                        <div class="card-title">Solicitudes con >3 Mov.</div>
                         <div class="card-value" id="movMultiples">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Colaboradores Activos</div>
+                        <div class="card-value" id="movColaboradores">0</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="chart-container">
+                        <div class="chart-title">Distribución de Movimientos</div>
+                        <canvas id="chartMovimientosDistro"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Top 10 Colaboradores por Movimientos</div>
+                        <canvas id="chartMovimientosColaboradores"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="chart-title">👥 Análisis de Movimientos por Usuario</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Colaborador</th>
+                                    <th>Total Solicitudes</th>
+                                    <th>Total Movimientos</th>
+                                    <th>Promedio por Solicitud</th>
+                                    <th>Solicitudes >3 Mov.</th>
+                                    <th>Tasa de Derivación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movColaboradoresTabla">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <div class="chart-container">
-                    <div class="chart-title">Solicitudes con Mayor Cantidad de Movimientos</div>
+                    <div class="chart-title">📊 Solicitudes con Mayor Cantidad de Movimientos</div>
                     <div class="table-container">
                         <table>
                             <thead>
@@ -863,7 +940,7 @@
                                     <th>Solicitud</th>
                                     <th>Servicio</th>
                                     <th>Movimientos</th>
-                                    <th>Responsable</th>
+                                    <th>Responsable Principal</th>
                                     <th>Fecha Creación</th>
                                 </tr>
                             </thead>
@@ -979,17 +1056,46 @@
         };
 
         // ============================================
-        // FUNCIÓN PARA DESTACAR PALABRAS CLAVE
+        // FUNCIÓN PARA DESTACAR PALABRAS CLAVE CON COLORES
         // ============================================
-        function destacarPalabrasClaves(texto, palabrasClaves) {
+        function destacarPalabrasClaves(texto, alerta) {
             if (!texto) return '';
             let textoModificado = texto;
             
-            palabrasClaves.forEach(palabra => {
-                const regex = new RegExp(`(${palabra})`, 'gi');
-                textoModificado = textoModificado.replace(regex, '<span class="highlight-keyword">$1</span>');
+            // Mapeo de tipos a clases CSS
+            const tiposClase = {
+                'incongruencia': 'highlight-incongruencia',
+                'riesgo_legal': 'highlight-riesgo-legal',
+                'queja_personal': 'highlight-queja-personal',
+                'demora': 'highlight-demora',
+                'ortografia': 'highlight-ortografia'
+            };
+
+            // Destacar palabras según cada tipo
+            alerta.tipo.forEach(tipo => {
+                const clase = tiposClase[tipo];
+                let palabrasParaResaltar = [];
+
+                // Obtener palabras según el tipo
+                if (tipo === 'incongruencia') {
+                    palabrasParaResaltar = [...CRITERIOS_ALERTAS.renuncia, ...CRITERIOS_ALERTAS.suspension];
+                } else if (tipo === 'riesgo_legal') {
+                    palabrasParaResaltar = CRITERIOS_ALERTAS.riesgoLegal;
+                } else if (tipo === 'queja_personal') {
+                    palabrasParaResaltar = CRITERIOS_ALERTAS.quejaPersonal;
+                } else if (tipo === 'demora') {
+                    palabrasParaResaltar = CRITERIOS_ALERTAS.demoraResponsible;
+                } else if (tipo === 'ortografia') {
+                    palabrasParaResaltar = alerta.palabrasDetectadas.filter(p => alerta.tipo.includes('ortografia'));
+                }
+
+                // Resaltar cada palabra
+                palabrasParaResaltar.forEach(palabra => {
+                    const regex = new RegExp(`(${palabra})`, 'gi');
+                    textoModificado = textoModificado.replace(regex, `<span class="${clase}">$1</span>`);
+                });
             });
-            
+
             return textoModificado;
         }
 
@@ -1477,11 +1583,18 @@
                         'demora': '⏱️',
                         'ortografia': '✏️'
                     };
-                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.25rem 0.5rem; background-color: var(--border-color); border-radius: 4px; font-size: 0.8rem;">${iconos[t] || '⚠️'} ${t.toUpperCase()}</span>`;
+                    const colores = {
+                        'incongruencia': '#9B59B6',
+                        'riesgo_legal': '#E74C3C',
+                        'queja_personal': '#E67E22',
+                        'demora': '#F39C12',
+                        'ortografia': '#3498DB'
+                    };
+                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.35rem 0.75rem; background-color: ${colores[t]}; color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${iconos[t] || '⚠️'} ${t.toUpperCase().replace('_', ' ')}</span>`;
                 }).join('');
 
-                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta.palabrasDetectadas);
-                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta.palabrasDetectadas);
+                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta);
+                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta);
 
                 html += `
                     <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
@@ -1534,11 +1647,18 @@
             alertasFiltradas.forEach(alerta => {
                 const tiposAlerta = alerta.tipo.map(t => {
                     const iconos = { 'incongruencia': '🔄', 'riesgo_legal': '⚖️', 'queja_personal': '😠', 'demora': '⏱️', 'ortografia': '✏️' };
-                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.25rem 0.5rem; background-color: var(--border-color); border-radius: 4px; font-size: 0.8rem;">${iconos[t] || '⚠️'} ${t.toUpperCase()}</span>`;
+                    const colores = {
+                        'incongruencia': '#9B59B6',
+                        'riesgo_legal': '#E74C3C',
+                        'queja_personal': '#E67E22',
+                        'demora': '#F39C12',
+                        'ortografia': '#3498DB'
+                    };
+                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.35rem 0.75rem; background-color: ${colores[t]}; color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${iconos[t] || '⚠️'} ${t.toUpperCase().replace('_', ' ')}</span>`;
                 }).join('');
 
-                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta.palabrasDetectadas);
-                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta.palabrasDetectadas);
+                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta);
+                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta);
 
                 html += `
                     <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
@@ -1581,13 +1701,29 @@
 
         function actualizarMovimientos() {
             const movimientos = {};
+            const movimientosPorColaborador = {};
             let totalMovimientos = 0;
 
             datosResueltas.forEach(d => {
                 const numMovimientos = parseInt(d['Contador Correos']) || 0;
+                const propietario = d['Propietario'] || 'Sin asignar';
+                
                 if (numMovimientos > 0) {
                     movimientos[numMovimientos] = (movimientos[numMovimientos] || 0) + 1;
                     totalMovimientos += numMovimientos;
+                    
+                    if (!movimientosPorColaborador[propietario]) {
+                        movimientosPorColaborador[propietario] = {
+                            movimientosTotal: 0,
+                            solicitudes: 0,
+                            solicitudesAltas: 0
+                        };
+                    }
+                    movimientosPorColaborador[propietario].movimientosTotal += numMovimientos;
+                    movimientosPorColaborador[propietario].solicitudes++;
+                    if (numMovimientos > 3) {
+                        movimientosPorColaborador[propietario].solicitudesAltas++;
+                    }
                 }
             });
 
@@ -1599,7 +1735,112 @@
             document.getElementById('movTotalMovimientos').textContent = totalMovimientos;
             document.getElementById('movPromedio').textContent = promedio;
             document.getElementById('movMultiples').textContent = multiples;
+            document.getElementById('movColaboradores').textContent = Object.keys(movimientosPorColaborador).length;
 
+            // Gráfico de distribución
+            const labels = Object.keys(movimientos).sort((a, b) => parseInt(a) - parseInt(b));
+            const data = labels.map(l => movimientos[l]);
+
+            if (charts.movimientosDistro) charts.movimientosDistro.destroy();
+            const ctxMovimientos = document.getElementById('chartMovimientosDistro');
+            if (ctxMovimientos) {
+                charts.movimientosDistro = new Chart(ctxMovimientos, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.map(l => `${l} mov.`),
+                        datasets: [{
+                            label: 'Solicitudes',
+                            data: data,
+                            backgroundColor: '#3498DB',
+                            borderColor: '#2980B9',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: getComputedStyle(document.body).color }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: getComputedStyle(document.body).color },
+                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color') }
+                            },
+                            x: {
+                                ticks: { color: getComputedStyle(document.body).color }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de colaboradores
+            const topColaboradores = Object.entries(movimientosPorColaborador)
+                .sort((a, b) => b[1].movimientosTotal - a[1].movimientosTotal)
+                .slice(0, 10);
+
+            const ctxColaboradores = document.getElementById('chartMovimientosColaboradores');
+            if (ctxColaboradores) {
+                if (charts.movimientosColaboradores) charts.movimientosColaboradores.destroy();
+                charts.movimientosColaboradores = new Chart(ctxColaboradores, {
+                    type: 'bar',
+                    data: {
+                        labels: topColaboradores.map(c => c[0].substring(0, 20)),
+                        datasets: [{
+                            label: 'Total Movimientos',
+                            data: topColaboradores.map(c => c[1].movimientosTotal),
+                            backgroundColor: '#E74C3C',
+                            borderColor: '#C0392B',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: getComputedStyle(document.body).color }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: getComputedStyle(document.body).color },
+                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color') }
+                            },
+                            y: {
+                                ticks: { color: getComputedStyle(document.body).color }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Tabla de análisis por usuario
+            const htmlColaboradores = Object.entries(movimientosPorColaborador)
+                .sort((a, b) => b[1].movimientosTotal - a[1].movimientosTotal)
+                .map((entry, idx) => {
+                    const [nombre, datos] = entry;
+                    const promMov = (datos.movimientosTotal / datos.solicitudes).toFixed(2);
+                    const tasaDer = ((datos.movimientosTotal / datos.solicitudes) * 100).toFixed(1);
+                    return `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${nombre}</strong></td>
+                            <td>${datos.solicitudes}</td>
+                            <td><span style="background-color: var(--border-color); padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">${datos.movimientosTotal}</span></td>
+                            <td>${promMov}</td>
+                            <td><span style="color: ${datos.solicitudesAltas > 5 ? '#E74C3C' : '#F39C12'}; font-weight: 700;">${datos.solicitudesAltas}</span></td>
+                            <td>${tasaDer}%</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            document.getElementById('movColaboradoresTabla').innerHTML = htmlColaboradores || 
+                '<tr><td colspan="7" style="text-align: center;">Sin movimientos</td></tr>';
+
+            // Tabla de solicitudes con más movimientos
             const solicitudesConMovimientos = datosResueltas
                 .map((d, idx) => ({
                     numero: d['Número de Solicitud'] || `SOL-${idx}`,
@@ -1622,7 +1863,8 @@
                 </tr>
             `).join('');
 
-            document.getElementById('movDetalleTabla').innerHTML = htmlTabla || '<tr><td colspan="5" style="text-align: center;">Sin movimientos</td></tr>';
+            document.getElementById('movDetalleTabla').innerHTML = htmlTabla || 
+                '<tr><td colspan="5" style="text-align: center;">Sin movimientos</td></tr>';
         }
 
         function actualizarTablaSolicitudes() {
