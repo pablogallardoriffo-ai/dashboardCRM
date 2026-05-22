@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Solicitudes Duoc UC - Viña del Mar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --duoc-amarillo: #FFC107;
+            --duoc-gris: #2C3E50;
+            --duoc-gris-claro: #34495E;
+            --success: #27AE60;
+            --danger: #E74C3C;
+            --warning: #F39C12;
+            --info: #3498DB;
+            --secondary: #95A5A6;
+            --text-color: #2C3E50;
+            --bg-color: #FFFFFF;
+            --border-color: #ECF0F1;
+            --card-bg: #FFFFFF;
+            --input-bg: #F8F9FA;
+        }
+
+        body.dark-mode {
+            --text-color: #ECF0F1;
+            --bg-color: #1A252F;
+            --border-color: #34495E;
+            --card-bg: #2C3E50;
+            --input-bg: #1A252F;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            line-height: 1.6;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, var(--duoc-gris) 0%, var(--duoc-gris-claro) 100%);
+            padding: 1.5rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            z-index: 200;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1.5rem;
+            border-bottom: 2px solid rgba(255, 193, 7, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-logo { color: var(--duoc-amarillo); font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .sidebar-subtext { font-size: 0.7rem; color: var(--duoc-amarillo); opacity: 0.9; }
+
+        .nav-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding: 0 0.75rem;
+        }
+
+        .nav-tab {
+            padding: 0.85rem 1.25rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            text-align: left;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--duoc-amarillo);
+            border-left-color: var(--duoc-amarillo);
+        }
+
+        .nav-tab.active {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: var(--duoc-amarillo);
+            font-weight: 600;
+            border-left-color: var(--duoc-amarillo);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--duoc-gris) 0%, var(--duoc-gris-claro) 100%);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .logo-text { color: var(--duoc-amarillo); font-size: 1.2rem; font-weight: 700; }
+
+        .theme-toggle {
+            width: 60px;
+            height: 34px;
+            background-color: #ccc;
+            border-radius: 34px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+        }
+
+        .theme-toggle.dark { background-color: var(--duoc-amarillo); }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .theme-toggle.dark::after { left: 28px; }
+
+        .main-content { flex: 1; margin-left: 280px; }
+        .container { max-width: 1920px; margin: 0 auto; padding: 2rem; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--duoc-amarillo);
+            margin-bottom: 0.5rem;
+        }
+
+        .card.success .card-value { color: var(--success); }
+        .card.danger .card-value { color: var(--danger); }
+        .card.warning .card-value { color: var(--warning); }
+        .card.info .card-value { color: var(--info); }
+
+        .upload-section {
+            background-color: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--duoc-amarillo);
+            background-color: var(--input-bg);
+        }
+
+        .upload-section input[type="file"] { display: none; }
+        .upload-label { cursor: pointer; display: block; }
+        .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--duoc-amarillo);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: #FFB300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+
+        .filters {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-item { display: flex; flex-direction: column; }
+        .filter-item label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .filter-item input, .filter-item select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .filter-item input:focus, .filter-item select:focus {
+            outline: none;
+            border-color: var(--duoc-amarillo);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--duoc-gris);
+            color: white;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        tbody tr:hover { background-color: var(--input-bg); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-aprobado { background-color: rgba(39, 174, 96, 0.2); color: var(--success); }
+        .status-rechazado { background-color: rgba(231, 76, 60, 0.2); color: var(--danger); }
+        .status-parcial { background-color: rgba(243, 156, 18, 0.2); color: var(--warning); }
+        .status-activo { background-color: rgba(52, 152, 219, 0.2); color: var(--info); }
+
+        .chart-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .alert {
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+            background-color: var(--card-bg);
+        }
+
+        .alert-danger {
+            border-left-color: var(--danger);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .alert-title { font-weight: 600; margin-bottom: 0.5rem; }
+        .alert-text { font-size: 0.9rem; opacity: 0.9; }
+
+        .highlight-keyword {
+            background-color: #FFD700;
+            color: #000;
+            font-weight: 700;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .stat-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--duoc-amarillo);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title { font-size: 1.3rem; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--secondary); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 230px; }
+            .header { margin-left: 230px; }
+            .main-content { margin-left: 230px; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+            }
+
+            .nav-tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 0.5rem;
+            }
+
+            .nav-tab {
+                flex: 0 0 auto;
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+                margin-bottom: 0;
+                border-left: none;
+                border-bottom: 2px solid transparent;
+            }
+
+            .nav-tab.active {
+                border-left: none;
+                border-bottom: 2px solid var(--duoc-amarillo);
+            }
+
+            .header {
+                margin-left: 0;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .main-content { margin-left: 0; }
+            .container { padding: 1rem; }
+            .card-grid { grid-template-columns: 1fr; }
+            .filter-group { grid-template-columns: 1fr; }
+            .card-value { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">DuocUC</div>
+            <div class="sidebar-subtext">Viña del Mar</div>
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="nav-tab" data-tab="upload">📁 Cargar Datos</button>
+            <button class="nav-tab" data-tab="colaboradores">👤 Colaboradores</button>
+            <button class="nav-tab" data-tab="alertas">🚨 Alertas Críticas</button>
+            <button class="nav-tab" data-tab="movimientos">🔄 Movimientos</button>
+            <button class="nav-tab" data-tab="solicitudes">📋 Solicitudes</button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        <div class="header">
+            <div class="logo-text">📊 Sistema de Análisis de Solicitudes - Viña del Mar</div>
+            <button class="theme-toggle" id="themeToggle"></button>
+        </div>
+
+        <div class="container">
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">📊 Dashboard Principal</h2>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-title">Total Solicitudes</div>
+                        <div class="card-value" id="kpi-total">0</div>
+                    </div>
+                    <div class="card success">
+                        <div class="card-title">Aprobadas</div>
+                        <div class="card-value" id="kpi-aprobadas">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-aprobadas-pct">0%</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Rechazadas</div>
+                        <div class="card-value" id="kpi-rechazadas">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-rechazadas-pct">0%</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Parciales</div>
+                        <div class="card-value" id="kpi-parciales">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-parciales-pct">0%</div>
+                    </div>
+                    <div class="card info">
+                        <div class="card-title">KPI Satisfacción</div>
+                        <div class="card-value" id="kpi-satisfaccion">0%</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Alertas Críticas</div>
+                        <div class="card-value" id="kpi-alertas">0</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="chart-container">
+                        <div class="chart-title">Estados de Solicitudes</div>
+                        <canvas id="chartEstados"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Tipos de Servicio</div>
+                        <canvas id="chartServicios"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARGAR DATOS -->
+            <div id="upload" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">📁 Cargar Base de Datos</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                    <div class="upload-section">
+                        <label class="upload-label" for="fileResueltas">
+                            <div class="upload-icon">📄</div>
+                            <div style="font-weight: 600;">Solicitudes Resueltas</div>
+                            <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 0.5rem;">Archivo XLSX</div>
+                        </label>
+                        <input type="file" id="fileResueltas" accept=".xlsx,.xls" />
+                        <div id="statusResueltas" style="margin-top: 1rem; font-size: 0.85rem;"></div>
+                    </div>
+
+                    <div class="upload-section">
+                        <label class="upload-label" for="fileActivas">
+                            <div class="upload-icon">📋</div>
+                            <div style="font-weight: 600;">Solicitudes Activas</div>
+                            <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 0.5rem;">Archivo XLSX</div>
+                        </label>
+                        <input type="file" id="fileActivas" accept=".xlsx,.xls" />
+                        <div id="statusActivas" style="margin-top: 1rem; font-size: 0.85rem;"></div>
+                    </div>
+                </div>
+
+                <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">ℹ️ Información de Carga</h3>
+                    <div id="uploadInfo" style="font-size: 0.9rem; line-height: 1.8;">
+                        <p>✅ No hay datos cargados. Carga los archivos XLSX para comenzar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLABORADORES -->
+            <div id="colaboradores" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">👤 Análisis de Colaboradores</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label>Seleccionar Colaborador</label>
+                            <select id="colaboradorFilter">
+                                <option value="">-- Todos los colaboradores --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="colaboradorDetailContainer" style="display: none;">
+                    <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(44, 62, 80, 0.05) 100%);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <div class="card-title">Colaborador</div>
+                                <div style="font-size: 1.3rem; font-weight: 700;" id="colaboradorNombre">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Total Solicitudes</div>
+                                <div style="font-size: 1.3rem; font-weight: 700;" id="colaboradorTotal">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Tasa Aprobación</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: var(--success);" id="colaboradorTasaAprobacion">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Tiempo Promedio Respuesta</div>
+                                <div style="font-size: 1.3rem; font-weight: 700;" id="colaboradorTiempoRespuesta">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Alertas Críticas</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: var(--danger);" id="colaboradorAlertas">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" style="margin-bottom: 2rem;">
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabAprobadas">0</div>
+                            <div class="stat-label">Aprobadas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabRechazadas">0</div>
+                            <div class="stat-label">Rechazadas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabParciales">0</div>
+                            <div class="stat-label">Parciales</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabPromMovimientos">0</div>
+                            <div class="stat-label">Prom. Movimientos</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <div class="card-title">Tasa Aprobación vs Sede</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <div>Colaborador: <span id="compareAprobColaborador" style="font-weight: 700; color: var(--duoc-amarillo);">-</span></div>
+                                    <div>Sede: <span id="compareAprobSede" style="font-weight: 700; color: var(--secondary);">-</span></div>
+                                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                                        Diferencia: <span id="compareAprobDiff" style="font-weight: 700;">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="card-title">Tiempo Respuesta vs Sede</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <div>Colaborador: <span id="compareTiempoColaborador" style="font-weight: 700; color: var(--duoc-amarillo);">-</span></div>
+                                    <div>Sede: <span id="compareTiempoSede" style="font-weight: 700; color: var(--secondary);">-</span></div>
+                                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                                        Diferencia: <span id="compareTiempoDiff" style="font-weight: 700;">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="card-title">Movimientos Internos vs Sede</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <div>Colaborador: <span id="compareMovColaborador" style="font-weight: 700; color: var(--duoc-amarillo);">-</span></div>
+                                    <div>Sede: <span id="compareMovSede" style="font-weight: 700; color: var(--secondary);">-</span></div>
+                                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                                        Diferencia: <span id="compareMovDiff" style="font-weight: 700;">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="chart-title" style="margin-bottom: 1rem;">🏆 Ranking de Colaboradores</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Colaborador</th>
+                                    <th>Solicitudes</th>
+                                    <th>Tasa Aprobación</th>
+                                    <th>Tiempo Promedio</th>
+                                    <th>Prom. Movimientos</th>
+                                    <th>Alertas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rankingColaboradores">
+                                <tr><td colspan="7" style="text-align: center; color: var(--secondary);">Cargando datos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTAS CRÍTICAS -->
+            <div id="alertas" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">🚨 Alertas Críticas</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label>Tipo de Alerta</label>
+                            <select id="alertaTypeFilter">
+                                <option value="">-- Todos --</option>
+                                <option value="incongruencia">Incongruencia</option>
+                                <option value="riesgo_legal">Riesgo Legal</option>
+                                <option value="queja_personal">Queja Personal</option>
+                                <option value="demora">Demora Respuesta</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label>Colaborador</label>
+                            <select id="alertaColaboradorFilter">
+                                <option value="">-- Todos --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="filtrarAlertas()">🔍 Filtrar</button>
+                        <button class="btn btn-primary" style="background-color: var(--secondary);" onclick="limpiarFiltrosAlertas()">↺ Limpiar</button>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card danger">
+                        <div class="card-title">Incongruencias</div>
+                        <div class="card-value" id="alertaIncongruencias">0</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Riesgos Legales</div>
+                        <div class="card-value" id="alertaRiesgosLegales">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Quejas al Personal</div>
+                        <div class="card-value" id="alertaQuejasPersonal">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Demoras</div>
+                        <div class="card-value" id="alertaDemoras">0</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="chart-title">🔴 Top Colaboradores con Alertas</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Colaborador</th>
+                                    <th>Incongruencias</th>
+                                    <th>Riesgos Legales</th>
+                                    <th>Quejas Personal</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topAlertasColaboradores">
+                                <tr><td colspan="6" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="chart-title">Detalle de Alertas</div>
+                    <div id="alertasDetalle" style="max-height: 1000px; overflow-y: auto;">
+                        <p style="text-align: center; color: var(--secondary);">Cargando alertas...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOVIMIENTOS -->
+            <div id="movimientos" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">🔄 Movimientos Internos</h2>
+
+                <div class="card-grid">
+                    <div class="card info">
+                        <div class="card-title">Total Movimientos</div>
+                        <div class="card-value" id="movTotalMovimientos">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Promedio por Solicitud</div>
+                        <div class="card-value" id="movPromedio">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Solicitudes con >3 Movimientos</div>
+                        <div class="card-value" id="movMultiples">0</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Solicitudes con Mayor Cantidad de Movimientos</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Solicitud</th>
+                                    <th>Servicio</th>
+                                    <th>Movimientos</th>
+                                    <th>Responsable</th>
+                                    <th>Fecha Creación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movDetalleTabla">
+                                <tr><td colspan="5" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOLICITUDES -->
+            <div id="solicitudes" class="tab-content">
+                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">📋 Detalle de Solicitudes</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label>Estado</label>
+                            <select id="solicitudEstadoFilter">
+                                <option value="">-- Todos --</option>
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Rechazado">Rechazado</option>
+                                <option value="Aprobado Parcialmente">Parcial</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Solicitud</th>
+                                    <th>Estudiante</th>
+                                    <th>Servicio</th>
+                                    <th>Estado</th>
+                                    <th>Colaborador</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="solicitudesTabla">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modalSolicitud" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Detalle de Solicitud</div>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATOS GLOBALES
+        // ============================================
+        let datosResueltas = [];
+        let datosActivas = [];
+        let dataAnalytics = {
+            colaboradores: {},
+            alertas: [],
+            tiemposRespuesta: []
+        };
+
+        // ============================================
+        // DICCIONARIO DE ALERTAS
+        // ============================================
+        const CRITERIOS_ALERTAS = {
+            renuncia: ['renunciar', 'dejar', 'salir', 'abandonar', 'quiero dejar', 'deseo retirar', 'solicito retiro'],
+            suspension: ['suspender', 'pausar', 'mantener', 'se suspenda', 'segunda suspensión'],
+            demoraResponsible: ['mucho tiempo', 'llevo meses', 'llevo días', 'lento', 'nunca responde', 'se demora', 'no responde', 'espero hace', 'hace semanas', 'hace meses', 'incumplimiento'],
+            quejaPersonal: ['grosero', 'mala atención', 'descortés', 'no sabe', 'incompetente', 'flojo', 'no entiende', 'es lento', 'se demora', 'mala educación', 'falta de respeto'],
+            riesgoLegal: ['sernac', 'ministerio', 'reclamo', 'demanda', 'legal', 'legalidad', 'derecho', 'denuncia', 'abogado', 'tribunal', 'discriminación', 'cobro indebido']
+        };
+
+        // ============================================
+        // FUNCIÓN PARA DESTACAR PALABRAS CLAVE
+        // ============================================
+        function destacarPalabrasClaves(texto, palabrasClaves) {
+            if (!texto) return '';
+            let textoModificado = texto;
+            
+            palabrasClaves.forEach(palabra => {
+                const regex = new RegExp(`(${palabra})`, 'gi');
+                textoModificado = textoModificado.replace(regex, '<span class="highlight-keyword">$1</span>');
+            });
+            
+            return textoModificado;
+        }
+
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        function cargarTema() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').classList.add('dark');
+            }
+        }
+
+        function cambiarTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ============================================
+        // CARGA DE ARCHIVOS MEJORADA
+        // ============================================
+        function handleFileResueltas(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    if (typeof XLSX === 'undefined') {
+                        throw new Error('XLSX no está cargado');
+                    }
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    datosResueltas = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    document.getElementById('statusResueltas').innerHTML = 
+                        `<div style="color: var(--success); font-weight: 600;">✅ ${datosResueltas.length} solicitudes cargadas</div>`;
+                    
+                    procesarDatos();
+                    actualizarDashboard();
+                } catch (error) {
+                    document.getElementById('statusResueltas').innerHTML = 
+                        `<div style="color: var(--danger);">❌ ${error.message}</div>`;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleFileActivas(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    if (typeof XLSX === 'undefined') {
+                        throw new Error('XLSX no está cargado');
+                    }
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    datosActivas = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    document.getElementById('statusActivas').innerHTML = 
+                        `<div style="color: var(--success); font-weight: 600;">✅ ${datosActivas.length} solicitudes cargadas</div>`;
+                    
+                    procesarDatos();
+                    actualizarDashboard();
+                } catch (error) {
+                    document.getElementById('statusActivas').innerHTML = 
+                        `<div style="color: var(--danger);">❌ ${error.message}</div>`;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // ============================================
+        // PROCESAMIENTO DE DATOS
+        // ============================================
+        function procesarDatos() {
+            dataAnalytics = { colaboradores: {}, alertas: [], tiemposRespuesta: [] };
+
+            datosResueltas.forEach((row, idx) => {
+                const propietario = row['Propietario'] || 'Sin asignar';
+                const subEstado = row['Sub Estado'] || 'N/A';
+                const descripcion = row['Descripción'] || '';
+                const resolucion = row['Resolución'] || '';
+                const movimientos = parseInt(row['Contador Correos'] || 0);
+                const servicio = row['Servicio Nivel 2'] || row['Servicio Nivel 1'] || 'N/A';
+                const contacto = row['Contacto'] || 'N/A';
+                const numeroSolicitud = row['Número de Solicitud'] || `SOL-${idx}`;
+                const fechaCreacion = row['Fecha de creación'];
+                const fechaResolucion = row['Fecha de resolución'];
+
+                // Calcular tiempo de respuesta
+                let diasRespuesta = null;
+                if (fechaCreacion && fechaResolucion) {
+                    try {
+                        const f1 = new Date(fechaCreacion);
+                        const f2 = new Date(fechaResolucion);
+                        diasRespuesta = Math.ceil((f2 - f1) / (1000 * 60 * 60 * 24));
+                    } catch (e) {}
+                }
+
+                // Inicializar colaborador
+                if (!dataAnalytics.colaboradores[propietario]) {
+                    dataAnalytics.colaboradores[propietario] = {
+                        nombre: propietario,
+                        total: 0,
+                        aprobadas: 0,
+                        rechazadas: 0,
+                        parciales: 0,
+                        alertas: { incongruencias: 0, riesgoLegal: 0, quejaPersonal: 0, demora: 0 },
+                        movimientosTotal: 0,
+                        tiemposRespuesta: [],
+                        solicitudes: []
+                    };
+                }
+
+                // Contar datos
+                dataAnalytics.colaboradores[propietario].total++;
+                dataAnalytics.colaboradores[propietario].movimientosTotal += movimientos;
+                if (diasRespuesta) dataAnalytics.colaboradores[propietario].tiemposRespuesta.push(diasRespuesta);
+
+                dataAnalytics.colaboradores[propietario].solicitudes.push({
+                    numero: numeroSolicitud,
+                    servicio: servicio,
+                    estado: subEstado,
+                    contacto: contacto,
+                    fechaCreacion: fechaCreacion,
+                    fechaResolucion: fechaResolucion,
+                    movimientos: movimientos,
+                    descripcion: descripcion,
+                    resolucion: resolucion,
+                    diasRespuesta: diasRespuesta
+                });
+
+                // Contar estados
+                if (subEstado === 'Aprobado') {
+                    dataAnalytics.colaboradores[propietario].aprobadas++;
+                } else if (subEstado === 'Rechazado' || subEstado === 'Rechazado por Duplicidad') {
+                    dataAnalytics.colaboradores[propietario].rechazadas++;
+                } else if (subEstado === 'Aprobado Parcialmente') {
+                    dataAnalytics.colaboradores[propietario].parciales++;
+                }
+
+                // Guardar tiempo para promedio sede
+                if (diasRespuesta) {
+                    dataAnalytics.tiemposRespuesta.push(diasRespuesta);
+                }
+
+                // Detectar alertas
+                detectarAlertas(propietario, numeroSolicitud, descripcion, resolucion, subEstado, contacto, servicio);
+            });
+        }
+
+        function detectarAlertas(propietario, numeroSolicitud, descripcion, resolucion, subEstado, contacto, servicio) {
+            const texto = (descripcion + ' ' + resolucion).toLowerCase();
+            const alerta = {
+                tipo: [],
+                propietario: propietario,
+                solicitud: numeroSolicitud,
+                contacto: contacto,
+                servicio: servicio,
+                descripcion: descripcion,
+                resolucion: resolucion,
+                palabrasDetectadas: []
+            };
+
+            // Detectar incongruencias
+            if (CRITERIOS_ALERTAS.renuncia.some(p => texto.includes(p)) && 
+                CRITERIOS_ALERTAS.suspension.some(p => texto.includes(p))) {
+                alerta.tipo.push('incongruencia');
+                alerta.palabrasDetectadas.push('incongruencia');
+            }
+
+            // Detectar riesgo legal
+            const palabrasLegales = CRITERIOS_ALERTAS.riesgoLegal.filter(p => texto.includes(p));
+            if (palabrasLegales.length > 0) {
+                alerta.tipo.push('riesgo_legal');
+                alerta.palabrasDetectadas = alerta.palabrasDetectadas.concat(palabrasLegales);
+            }
+
+            // Detectar quejas personal
+            const palabrasQuejas = CRITERIOS_ALERTAS.quejaPersonal.filter(p => texto.includes(p));
+            if (palabrasQuejas.length > 0) {
+                alerta.tipo.push('queja_personal');
+                alerta.palabrasDetectadas = alerta.palabrasDetectadas.concat(palabrasQuejas);
+            }
+
+            // Detectar demora
+            const palabrasDemora = CRITERIOS_ALERTAS.demoraResponsible.filter(p => texto.includes(p));
+            if (palabrasDemora.length > 0) {
+                alerta.tipo.push('demora');
+                alerta.palabrasDetectadas = alerta.palabrasDetectadas.concat(palabrasDemora);
+            }
+
+            if (alerta.tipo.length > 0) {
+                dataAnalytics.alertas.push(alerta);
+                alerta.tipo.forEach(tipo => {
+                    if (tipo === 'incongruencia') dataAnalytics.colaboradores[propietario].alertas.incongruencias++;
+                    else if (tipo === 'riesgo_legal') dataAnalytics.colaboradores[propietario].alertas.riesgoLegal++;
+                    else if (tipo === 'queja_personal') dataAnalytics.colaboradores[propietario].alertas.quejaPersonal++;
+                    else if (tipo === 'demora') dataAnalytics.colaboradores[propietario].alertas.demora++;
+                });
+            }
+        }
+
+        // ============================================
+        // ACTUALIZAR DASHBOARD
+        // ============================================
+        function actualizarDashboard() {
+            const total = datosResueltas.length;
+            const aprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
+            const rechazadas = datosResueltas.filter(d => d['Sub Estado'] === 'Rechazado' || d['Sub Estado'] === 'Rechazado por Duplicidad').length;
+            const parciales = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado Parcialmente').length;
+
+            const satisfaccion = total > 0 ? ((aprobadas * 100 + parciales * 50) / (total * 100) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-aprobadas').textContent = aprobadas;
+            document.getElementById('kpi-aprobadas-pct').textContent = `${total > 0 ? ((aprobadas/total)*100).toFixed(1) : 0}%`;
+            document.getElementById('kpi-rechazadas').textContent = rechazadas;
+            document.getElementById('kpi-rechazadas-pct').textContent = `${total > 0 ? ((rechazadas/total)*100).toFixed(1) : 0}%`;
+            document.getElementById('kpi-parciales').textContent = parciales;
+            document.getElementById('kpi-parciales-pct').textContent = `${total > 0 ? ((parciales/total)*100).toFixed(1) : 0}%`;
+            document.getElementById('kpi-satisfaccion').textContent = `${satisfaccion}%`;
+            document.getElementById('kpi-alertas').textContent = dataAnalytics.alertas.length;
+
+            document.getElementById('uploadInfo').innerHTML = `
+                <p>✅ <strong>Solicitudes Resueltas:</strong> ${datosResueltas.length}</p>
+                <p>✅ <strong>Solicitudes Activas:</strong> ${datosActivas.length}</p>
+                <p>📊 <strong>Colaboradores:</strong> ${Object.keys(dataAnalytics.colaboradores).length}</p>
+                <p>🚨 <strong>Alertas Críticas:</strong> ${dataAnalytics.alertas.length}</p>
+            `;
+
+            crearGraficos();
+            poblarFiltros();
+            actualizarRankingColaboradores();
+            actualizarTopAlertas();
+            actualizarDetalleAlertas();
+            actualizarMovimientos();
+            actualizarTablaSolicitudes();
+        }
+
+        function poblarFiltros() {
+            const colaboradores = Object.keys(dataAnalytics.colaboradores).sort();
+
+            document.getElementById('colaboradorFilter').innerHTML = 
+                '<option value="">-- Todos --</option>' + colaboradores.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            document.getElementById('alertaColaboradorFilter').innerHTML = 
+                '<option value="">-- Todos --</option>' + colaboradores.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        let charts = {};
+
+        function crearGraficos() {
+            Object.values(charts).forEach(chart => { if (chart) chart.destroy(); });
+            charts = {};
+
+            const aprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
+            const rechazadas = datosResueltas.filter(d => d['Sub Estado'] === 'Rechazado' || d['Sub Estado'] === 'Rechazado por Duplicidad').length;
+            const parciales = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado Parcialmente').length;
+
+            const ctxEstados = document.getElementById('chartEstados');
+            if (ctxEstados) {
+                charts.estados = new Chart(ctxEstados, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Aprobadas', 'Rechazadas', 'Parciales'],
+                        datasets: [{
+                            data: [aprobadas, rechazadas, parciales],
+                            backgroundColor: ['#27AE60', '#E74C3C', '#F39C12']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: getComputedStyle(document.body).color } }
+                        }
+                    }
+                });
+            }
+
+            const servicios = {};
+            datosResueltas.forEach(d => {
+                const s = d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A';
+                servicios[s] = (servicios[s] || 0) + 1;
+            });
+            const topServicios = Object.entries(servicios).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+            const ctxServicios = document.getElementById('chartServicios');
+            if (ctxServicios) {
+                charts.servicios = new Chart(ctxServicios, {
+                    type: 'bar',
+                    data: {
+                        labels: topServicios.map(s => s[0].substring(0, 20)),
+                        datasets: [{
+                            label: 'Solicitudes',
+                            data: topServicios.map(s => s[1]),
+                            backgroundColor: '#FFC107'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: { legend: { labels: { color: getComputedStyle(document.body).color } } }
+                    }
+                });
+            }
+        }
+
+        function actualizarRankingColaboradores() {
+            const colaboradores = Object.values(dataAnalytics.colaboradores)
+                .sort((a, b) => {
+                    const tasaA = a.total > 0 ? (a.aprobadas / a.total) : 0;
+                    const tasaB = b.total > 0 ? (b.aprobadas / b.total) : 0;
+                    return tasaB - tasaA;
+                });
+
+            const html = colaboradores.map((c, idx) => {
+                const tasa = c.total > 0 ? ((c.aprobadas / c.total) * 100).toFixed(1) : 0;
+                const promMov = c.total > 0 ? (c.movimientosTotal / c.total).toFixed(1) : 0;
+                const promTiempo = c.tiemposRespuesta.length > 0 ? 
+                    (c.tiemposRespuesta.reduce((a, b) => a + b, 0) / c.tiemposRespuesta.length).toFixed(1) : 'N/A';
+                const totalAlertas = c.alertas.incongruencias + c.alertas.riesgoLegal + c.alertas.quejaPersonal + c.alertas.demora;
+                
+                return `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><strong>${c.nombre}</strong></td>
+                        <td>${c.total}</td>
+                        <td><span style="color: ${tasa >= 80 ? '#27AE60' : tasa >= 60 ? '#F39C12' : '#E74C3C'}; font-weight: 700;">${tasa}%</span></td>
+                        <td>${promTiempo !== 'N/A' ? `${promTiempo} días` : 'N/A'}</td>
+                        <td>${promMov}</td>
+                        <td><span style="color: ${totalAlertas > 5 ? '#E74C3C' : totalAlertas > 0 ? '#F39C12' : '#27AE60'}; font-weight: 700;">${totalAlertas}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('rankingColaboradores').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin datos</td></tr>';
+        }
+
+        document.getElementById('colaboradorFilter')?.addEventListener('change', function() {
+            if (!this.value) {
+                document.getElementById('colaboradorDetailContainer').style.display = 'none';
+                return;
+            }
+
+            const colab = dataAnalytics.colaboradores[this.value];
+            if (!colab) return;
+
+            const tasa = colab.total > 0 ? ((colab.aprobadas / colab.total) * 100).toFixed(1) : 0;
+            const promMov = colab.total > 0 ? (colab.movimientosTotal / colab.total).toFixed(2) : 0;
+            const promTiempoColab = colab.tiemposRespuesta.length > 0 ?
+                (colab.tiemposRespuesta.reduce((a, b) => a + b, 0) / colab.tiemposRespuesta.length).toFixed(1) : 'N/A';
+
+            // Promedios de sede
+            const allAprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
+            const sedeTasa = datosResueltas.length > 0 ? ((allAprobadas / datosResueltas.length) * 100).toFixed(1) : 0;
+            const sedePromMov = datosResueltas.length > 0 ?
+                (datosResueltas.reduce((sum, d) => sum + (parseInt(d['Contador Correos']) || 0), 0) / datosResueltas.length).toFixed(2) : 0;
+            const sedePromTiempo = dataAnalytics.tiemposRespuesta.length > 0 ?
+                (dataAnalytics.tiemposRespuesta.reduce((a, b) => a + b, 0) / dataAnalytics.tiemposRespuesta.length).toFixed(1) : 'N/A';
+
+            const totalAlertas = colab.alertas.incongruencias + colab.alertas.riesgoLegal + colab.alertas.quejaPersonal + colab.alertas.demora;
+
+            document.getElementById('colaboradorDetailContainer').style.display = 'block';
+            document.getElementById('colaboradorNombre').textContent = colab.nombre;
+            document.getElementById('colaboradorTotal').textContent = colab.total;
+            document.getElementById('colaboradorTasaAprobacion').textContent = `${tasa}%`;
+            document.getElementById('colaboradorTiempoRespuesta').textContent = promTiempoColab !== 'N/A' ? `${promTiempoColab} días` : 'N/A';
+            document.getElementById('colaboradorAlertas').textContent = totalAlertas;
+
+            document.getElementById('colabAprobadas').textContent = colab.aprobadas;
+            document.getElementById('colabRechazadas').textContent = colab.rechazadas;
+            document.getElementById('colabParciales').textContent = colab.parciales;
+            document.getElementById('colabPromMovimientos').textContent = promMov;
+
+            document.getElementById('compareAprobColaborador').textContent = `${tasa}%`;
+            document.getElementById('compareAprobSede').textContent = `${sedeTasa}%`;
+            document.getElementById('compareAprobDiff').textContent = `${(tasa - sedeTasa).toFixed(1)}% ${tasa > sedeTasa ? '✓' : '✗'}`;
+
+            document.getElementById('compareTiempoColaborador').textContent = promTiempoColab !== 'N/A' ? `${promTiempoColab} días` : 'N/A';
+            document.getElementById('compareTiempoSede').textContent = sedePromTiempo !== 'N/A' ? `${sedePromTiempo} días` : 'N/A';
+            document.getElementById('compareTiempoDiff').textContent = promTiempoColab !== 'N/A' && sedePromTiempo !== 'N/A' ? 
+                `${(parseFloat(promTiempoColab) - parseFloat(sedePromTiempo)).toFixed(1)} días ${promTiempoColab < sedePromTiempo ? '✓' : '✗'}` : 'N/A';
+
+            document.getElementById('compareMovColaborador').textContent = promMov;
+            document.getElementById('compareMovSede').textContent = sedePromMov;
+            document.getElementById('compareMovDiff').textContent = `${(promMov - sedePromMov).toFixed(2)} ${promMov < sedePromMov ? '✓' : '✗'}`;
+        });
+
+        function actualizarTopAlertas() {
+            const topColaboradores = Object.entries(dataAnalytics.colaboradores)
+                .map(([nombre, datos]) => ({
+                    nombre: datos.nombre,
+                    incongruencias: datos.alertas.incongruencias,
+                    riesgoLegal: datos.alertas.riesgoLegal,
+                    quejasPersonal: datos.alertas.quejaPersonal,
+                    total: datos.alertas.incongruencias + datos.alertas.riesgoLegal + datos.alertas.quejaPersonal + datos.alertas.demora
+                }))
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 10);
+
+            const html = topColaboradores.map((c, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${c.nombre}</strong></td>
+                    <td>${c.incongruencias}</td>
+                    <td>${c.riesgoLegal}</td>
+                    <td>${c.quejasPersonal}</td>
+                    <td><span style="color: ${c.total > 5 ? '#E74C3C' : '#F39C12'}; font-weight: 700;">${c.total}</span></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('topAlertasColaboradores').innerHTML = html || '<tr><td colspan="6" style="text-align: center;">Sin alertas</td></tr>';
+
+            const incongruencias = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.incongruencias, 0);
+            const riesgosLegales = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.riesgoLegal, 0);
+            const quejasPersonal = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.quejaPersonal, 0);
+            const demoras = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.demora, 0);
+
+            document.getElementById('alertaIncongruencias').textContent = incongruencias;
+            document.getElementById('alertaRiesgosLegales').textContent = riesgosLegales;
+            document.getElementById('alertaQuejasPersonal').textContent = quejasPersonal;
+            document.getElementById('alertaDemoras').textContent = demoras;
+        }
+
+        function actualizarDetalleAlertas() {
+            let html = '';
+            
+            dataAnalytics.alertas.forEach(alerta => {
+                const tiposAlerta = alerta.tipo.map(t => {
+                    const iconos = {
+                        'incongruencia': '🔄',
+                        'riesgo_legal': '⚖️',
+                        'queja_personal': '😠',
+                        'demora': '⏱️'
+                    };
+                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.25rem 0.5rem; background-color: var(--border-color); border-radius: 4px; font-size: 0.8rem;">${iconos[t] || '⚠️'} ${t.toUpperCase()}</span>`;
+                }).join('');
+
+                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta.palabrasDetectadas);
+                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta.palabrasDetectadas);
+
+                html += `
+                    <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                        <div class="alert-title">
+                            <strong>📌 Solicitud:</strong> ${alerta.solicitud} | 
+                            <strong>👤 Colaborador:</strong> ${alerta.propietario}
+                        </div>
+                        <div style="margin: 0.75rem 0;">
+                            ${tiposAlerta}
+                        </div>
+                        <div class="alert-text">
+                            <strong>📋 Servicio:</strong> ${alerta.servicio}<br/>
+                            <strong>👨‍🎓 Estudiante:</strong> ${alerta.contacto}
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--danger);">📝 Texto del Estudiante:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${descripcionDestacada}
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--info);">💬 Respuesta del Funcionario:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${resolucionDestacada || '<em style="color: var(--secondary);">Sin respuesta registrada</em>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('alertasDetalle').innerHTML = html || 
+                '<p style="text-align: center; color: var(--success); padding: 2rem;">✅ No hay alertas críticas detectadas</p>';
+        }
+
+        function filtrarAlertas() {
+            const tipoFiltro = document.getElementById('alertaTypeFilter').value;
+            const colaboradorFiltro = document.getElementById('alertaColaboradorFilter').value;
+
+            let alertasFiltradas = dataAnalytics.alertas;
+
+            if (tipoFiltro) {
+                alertasFiltradas = alertasFiltradas.filter(a => a.tipo.includes(tipoFiltro));
+            }
+
+            if (colaboradorFiltro) {
+                alertasFiltradas = alertasFiltradas.filter(a => a.propietario === colaboradorFiltro);
+            }
+
+            let html = '';
+            alertasFiltradas.forEach(alerta => {
+                const tiposAlerta = alerta.tipo.map(t => {
+                    const iconos = { 'incongruencia': '🔄', 'riesgo_legal': '⚖️', 'queja_personal': '😠', 'demora': '⏱️' };
+                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.25rem 0.5rem; background-color: var(--border-color); border-radius: 4px; font-size: 0.8rem;">${iconos[t] || '⚠️'} ${t.toUpperCase()}</span>`;
+                }).join('');
+
+                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta.palabrasDetectadas);
+                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta.palabrasDetectadas);
+
+                html += `
+                    <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                        <div class="alert-title">
+                            <strong>📌 Solicitud:</strong> ${alerta.solicitud} | 
+                            <strong>👤 Colaborador:</strong> ${alerta.propietario}
+                        </div>
+                        <div style="margin: 0.75rem 0;">
+                            ${tiposAlerta}
+                        </div>
+                        <div class="alert-text">
+                            <strong>📋 Servicio:</strong> ${alerta.servicio}<br/>
+                            <strong>👨‍🎓 Estudiante:</strong> ${alerta.contacto}
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--danger);">📝 Texto del Estudiante:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${descripcionDestacada}
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--info);">💬 Respuesta del Funcionario:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${resolucionDestacada || '<em style="color: var(--secondary);">Sin respuesta registrada</em>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('alertasDetalle').innerHTML = html || 
+                '<p style="text-align: center; color: var(--success); padding: 2rem;">✅ No hay alertas con estos criterios</p>';
+        }
+
+        function limpiarFiltrosAlertas() {
+            document.getElementById('alertaTypeFilter').value = '';
+            document.getElementById('alertaColaboradorFilter').value = '';
+            actualizarDetalleAlertas();
+        }
+
+        function actualizarMovimientos() {
+            const movimientos = {};
+            let totalMovimientos = 0;
+
+            datosResueltas.forEach(d => {
+                const numMovimientos = parseInt(d['Contador Correos']) || 0;
+                if (numMovimientos > 0) {
+                    movimientos[numMovimientos] = (movimientos[numMovimientos] || 0) + 1;
+                    totalMovimientos += numMovimientos;
+                }
+            });
+
+            const promedio = datosResueltas.length > 0 ? (totalMovimientos / datosResueltas.length).toFixed(2) : 0;
+            const multiples = Object.entries(movimientos)
+                .filter(([num, count]) => parseInt(num) > 3)
+                .reduce((sum, [num, count]) => sum + count, 0);
+
+            document.getElementById('movTotalMovimientos').textContent = totalMovimientos;
+            document.getElementById('movPromedio').textContent = promedio;
+            document.getElementById('movMultiples').textContent = multiples;
+
+            const solicitudesConMovimientos = datosResueltas
+                .map((d, idx) => ({
+                    numero: d['Número de Solicitud'] || `SOL-${idx}`,
+                    servicio: d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A',
+                    movimientos: parseInt(d['Contador Correos']) || 0,
+                    colaborador: d['Propietario'] || 'N/A',
+                    fechaCreacion: d['Fecha de creación'] || ''
+                }))
+                .filter(s => s.movimientos > 0)
+                .sort((a, b) => b.movimientos - a.movimientos)
+                .slice(0, 20);
+
+            const htmlTabla = solicitudesConMovimientos.map(s => `
+                <tr>
+                    <td>${s.numero}</td>
+                    <td>${s.servicio.substring(0, 30)}</td>
+                    <td><span style="background-color: var(--border-color); padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">${s.movimientos}</span></td>
+                    <td>${s.colaborador}</td>
+                    <td>${s.fechaCreacion}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('movDetalleTabla').innerHTML = htmlTabla || '<tr><td colspan="5" style="text-align: center;">Sin movimientos</td></tr>';
+        }
+
+        function actualizarTablaSolicitudes() {
+            const html = datosResueltas.slice(0, 50).map((d, idx) => `
+                <tr>
+                    <td>${d['Número de Solicitud'] || `SOL-${idx}`}</td>
+                    <td>${d['Contacto'] || 'N/A'}</td>
+                    <td>${d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A'}</td>
+                    <td><span class="status-badge status-${d['Sub Estado']?.toLowerCase()}">${d['Sub Estado'] || 'N/A'}</span></td>
+                    <td>${d['Propietario'] || 'Sin asignar'}</td>
+                    <td>${d['Fecha de creación'] || 'N/A'}</td>
+                    <td><button class="btn btn-primary" onclick="mostrarDetalleSolicitud(${idx})">Ver</button></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('solicitudesTabla').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin solicitudes</td></tr>';
+        }
+
+        function mostrarDetalleSolicitud(idx) {
+            const solicitud = datosResueltas[idx];
+            if (!solicitud) return;
+
+            const html = `
+                <div style="font-size: 0.95rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Solicitud</strong>
+                            <p>${solicitud['Número de Solicitud'] || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Estado</strong>
+                            <p><span class="status-badge status-${solicitud['Sub Estado']?.toLowerCase()}">${solicitud['Sub Estado'] || 'N/A'}</span></p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Estudiante</strong>
+                            <p>${solicitud['Contacto'] || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Servicio</strong>
+                            <p>${solicitud['Servicio Nivel 2'] || solicitud['Servicio Nivel 1'] || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                        <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Texto del Estudiante</strong>
+                        <div style="background-color: var(--input-bg); padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+                            ${solicitud['Descripción'] || 'Sin descripción'}
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Respuesta del Colaborador</strong>
+                        <div style="background-color: var(--input-bg); padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+                            ${solicitud['Resolución'] || 'Sin respuesta'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modalSolicitud').classList.add('show');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalSolicitud').classList.remove('show');
+        }
+
+        // EVENT LISTENERS
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        document.getElementById('fileResueltas').addEventListener('change', function(e) { handleFileResueltas(e.target.files[0]); });
+        document.getElementById('fileActivas').addEventListener('change', function(e) { handleFileActivas(e.target.files[0]); });
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                cambiarTab(this.dataset.tab);
+            });
+        });
+
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('modalSolicitud');
+            if (e.target === modal) cerrarModal();
+        });
+
+        cargarTema();
+    </script>
+</body>
+</html>
