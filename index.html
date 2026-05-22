@@ -7,58 +7,80 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --duoc-amarillo: #FFD700;
-            --duoc-azul: #1B3A5C;
-            --duoc-azul-claro: #2A5A8F;
-            --duoc-gris: #34495E;
-            --duoc-gris-claro: #5A7A9F;
-            --success: #2ECC71;
-            --danger: #E74C3C;
-            --warning: #F39C12;
-            --info: #3498DB;
-            --secondary: #95A5A6;
-            --text-color: #1B3A5C;
-            --bg-color: #FFFFFF;
-            --border-color: #E8EEF2;
+            --duoc-amarillo: #F5C518;
+            --duoc-amarillo-light: rgba(245,197,24,0.12);
+            --duoc-azul: #0D2137;
+            --duoc-azul-mid: #163352;
+            --duoc-azul-claro: #1E4A7A;
+            --duoc-gris: #1E293B;
+            --duoc-gris-claro: #475569;
+            --success: #10B981;
+            --success-light: rgba(16,185,129,0.1);
+            --danger: #EF4444;
+            --danger-light: rgba(239,68,68,0.1);
+            --warning: #F59E0B;
+            --warning-light: rgba(245,158,11,0.1);
+            --info: #3B82F6;
+            --info-light: rgba(59,130,246,0.1);
+            --secondary: #64748B;
+            --text-color: #0F172A;
+            --text-muted: #64748B;
+            --bg-color: #F1F5F9;
+            --border-color: #E2E8F0;
             --card-bg: #FFFFFF;
-            --input-bg: #F0F4F8;
+            --input-bg: #F8FAFC;
+            --sidebar-w: 272px;
+            --header-h: 72px;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 12px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.04);
+            --shadow-lg: 0 10px 30px rgba(15,23,42,0.1), 0 4px 12px rgba(15,23,42,0.06);
         }
 
         body.dark-mode {
-            --text-color: #ECF0F1;
-            --bg-color: #1B3A5C;
-            --border-color: #2A5A8F;
-            --card-bg: #2A5A8F;
-            --input-bg: #1B3A5C;
+            --text-color: #E2E8F0;
+            --text-muted: #94A3B8;
+            --bg-color: #0A1628;
+            --border-color: #1E293B;
+            --card-bg: #0F2137;
+            --input-bg: #0A1628;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: all 0.3s ease;
+            transition: background-color 0.3s, color 0.3s;
             line-height: 1.6;
             display: flex;
+            font-size: 14px;
         }
 
+        /* ─── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
-            width: 280px;
-            background: linear-gradient(135deg, var(--duoc-azul) 0%, var(--duoc-azul-claro) 100%);
-            padding: 2rem 0;
+            width: var(--sidebar-w);
+            background: linear-gradient(180deg, var(--duoc-azul) 0%, var(--duoc-azul-mid) 60%, var(--duoc-azul-claro) 100%);
+            padding: 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 4px 0 12px rgba(0,0,0,0.25);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.3);
             z-index: 200;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-header {
-            padding: 1.5rem 1rem;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.4);
-            margin-bottom: 2rem;
+            padding: 1.75rem 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(245,197,24,0.2);
             text-align: center;
         }
 
@@ -66,275 +88,357 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 0;
+            gap: 0.25rem;
             margin-bottom: 0.5rem;
         }
 
-        .logo-duoc-main {
-            color: var(--duoc-amarillo);
-            font-size: 2rem;
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--duoc-amarillo), #E6B800);
+            border-radius: 14px;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 4px 14px rgba(245,197,24,0.4);
+        }
+
+        .logo-badge-text {
+            font-size: 1.1rem;
             font-weight: 900;
-            letter-spacing: -2px;
+            color: #0D2137;
+            letter-spacing: -1px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .logo-duoc-main {
+            color: #FFFFFF;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             line-height: 1;
-            font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
         }
 
         .sidebar-subtext {
-            font-size: 0.7rem;
-            color: rgba(255, 215, 0, 0.8);
-            opacity: 1;
-            letter-spacing: 1px;
+            font-size: 0.68rem;
+            color: rgba(245,197,24,0.8);
+            letter-spacing: 1.5px;
             text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .sidebar-section-label {
+            font-size: 0.62rem;
             font-weight: 700;
-            margin-top: 0.25rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            padding: 1.25rem 1.25rem 0.5rem;
         }
 
         .nav-tabs {
             display: flex;
             flex-direction: column;
-            gap: 0;
-            padding: 0 0.75rem;
+            gap: 2px;
+            padding: 0.5rem 0.75rem;
         }
 
         .nav-tab {
-            padding: 0.85rem 1.25rem;
+            padding: 0.75rem 1rem;
             cursor: pointer;
             border: none;
-            background: none;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
             font-weight: 500;
-            transition: all 0.3s ease;
-            margin-bottom: 0.5rem;
-            border-radius: 6px;
+            transition: all 0.2s ease;
+            border-radius: 10px;
             text-align: left;
-            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-family: inherit;
         }
 
         .nav-tab:hover {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--duoc-amarillo);
-            border-left-color: var(--duoc-amarillo);
+            background-color: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
         }
 
         .nav-tab.active {
-            background-color: rgba(255, 193, 7, 0.2);
+            background: linear-gradient(135deg, rgba(245,197,24,0.18), rgba(245,197,24,0.08));
             color: var(--duoc-amarillo);
             font-weight: 600;
-            border-left-color: var(--duoc-amarillo);
+            box-shadow: inset 0 0 0 1px rgba(245,197,24,0.25);
         }
 
+        /* ─── HEADER ──────────────────────────────────────── */
         .header {
-            background: linear-gradient(90deg, var(--duoc-azul) 0%, var(--duoc-azul-claro) 100%);
-            padding: 0.75rem 2rem;
+            background: linear-gradient(90deg, var(--duoc-azul) 0%, var(--duoc-azul-mid) 100%);
+            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.06), var(--shadow-lg);
             position: fixed;
             top: 0;
-            left: 280px;
+            left: var(--sidebar-w);
             right: 0;
             z-index: 190;
-            height: 120px;
+            height: var(--header-h);
+            border-bottom: 1px solid rgba(245,197,24,0.15);
         }
 
         .header-left {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
-            justify-content: center;
+            gap: 0.2rem;
         }
 
         .header-titulo-principal {
-            color: var(--duoc-amarillo);
-            font-size: 0.95rem;
+            color: #FFFFFF;
+            font-size: 1rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px;
         }
 
         .header-subtitulo {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.65rem;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            color: rgba(245,197,24,0.75);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .header-clock {
             display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+        }
+
+        .clock-icon {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .clock-inner {
+            display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0.5rem;
-            justify-content: center;
         }
 
         .clock-time {
             color: var(--duoc-amarillo);
-            font-size: 1.8rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            font-family: 'Courier New', monospace;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-family: 'Inter', monospace;
             line-height: 1;
         }
 
         .clock-date {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.2px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.65rem;
+            font-weight: 500;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
         }
 
-        .logo-text { color: var(--duoc-amarillo); font-size: 1.2rem; font-weight: 700; }
-
         .theme-toggle {
-            width: 70px;
-            height: 38px;
-            background-color: #E8EEF2;
-            border-radius: 50px;
+            width: 64px;
+            height: 34px;
+            background-color: rgba(255,255,255,0.12);
+            border-radius: 34px;
             position: relative;
             cursor: pointer;
-            transition: background-color 0.35s ease;
-            border: none;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             padding: 0;
             outline: none;
         }
 
-        .theme-toggle:hover {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .theme-toggle.dark {
-            background-color: var(--duoc-azul);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-        }
+        .theme-toggle.dark { background-color: rgba(245,197,24,0.2); border-color: rgba(245,197,24,0.35); }
 
         .theme-toggle::before {
             content: '☀️';
             position: absolute;
-            left: 8px;
-            font-size: 18px;
+            left: 6px;
+            font-size: 16px;
             opacity: 1;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s;
         }
 
         .theme-toggle::after {
             content: '🌙';
             position: absolute;
-            right: 8px;
-            font-size: 18px;
-            opacity: 0.3;
-            transition: opacity 0.3s ease;
+            right: 6px;
+            font-size: 16px;
+            opacity: 0.35;
+            transition: opacity 0.3s;
         }
 
-        .theme-toggle.dark::before {
-            opacity: 0.3;
-        }
+        .theme-toggle.dark::before { opacity: 0.3; }
+        .theme-toggle.dark::after { opacity: 1; }
 
-        .theme-toggle.dark::after {
-            opacity: 1;
-        }
+        /* ─── LAYOUT ──────────────────────────────────────── */
+        .main-content { flex: 1; margin-left: var(--sidebar-w); padding-top: var(--header-h); }
+        .container { max-width: 1920px; margin: 0 auto; padding: 1.75rem 2rem; }
 
-        .main-content { flex: 1; margin-left: 280px; padding-top: 120px; }
-        .container { max-width: 1920px; margin: 0 auto; padding: 2rem; }
-
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; animation: fadeIn 0.25s ease; }
         .tab-content.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* ─── CARDS ───────────────────────────────────────── */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
         }
 
         .card {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: var(--radius);
             padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--duoc-amarillo), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
         }
 
         .card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
         }
 
+        .card:hover::before { opacity: 1; }
+
+        .card.success::before { background: linear-gradient(90deg, var(--success), transparent); opacity: 1; }
+        .card.danger::before  { background: linear-gradient(90deg, var(--danger), transparent); opacity: 1; }
+        .card.warning::before { background: linear-gradient(90deg, var(--warning), transparent); opacity: 1; }
+        .card.info::before    { background: linear-gradient(90deg, var(--info), transparent); opacity: 1; }
+
         .card-title {
-            font-size: 0.85rem;
-            color: var(--secondary);
+            font-size: 0.72rem;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.625rem;
             font-weight: 600;
         }
 
         .card-value {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.4rem;
+            font-weight: 800;
             color: var(--duoc-amarillo);
-            margin-bottom: 0.5rem;
+            line-height: 1;
+            margin-bottom: 0.25rem;
         }
 
         .card.success .card-value { color: var(--success); }
-        .card.danger .card-value { color: var(--danger); }
+        .card.danger  .card-value { color: var(--danger); }
         .card.warning .card-value { color: var(--warning); }
-        .card.info .card-value { color: var(--info); }
+        .card.info    .card-value { color: var(--info); }
 
+        /* ─── UPLOAD ──────────────────────────────────────── */
         .upload-section {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 2rem;
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
             text-align: center;
-            margin-bottom: 2rem;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-section.drag-over {
+            border-color: var(--duoc-amarillo);
+            background: var(--duoc-amarillo-light);
+            transform: scale(1.01);
         }
 
         .upload-section:hover {
-            border-color: var(--duoc-amarillo);
-            background-color: var(--input-bg);
+            border-color: var(--duoc-azul-claro);
+            background: var(--input-bg);
         }
 
-        .upload-section input[type="file"] { display: none; }
-        .upload-label { cursor: pointer; display: block; }
-        .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
+        .upload-section input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
             cursor: pointer;
-            font-size: 0.9rem;
+        }
+
+        .upload-label { cursor: pointer; display: block; pointer-events: none; }
+        .upload-icon { font-size: 2.75rem; margin-bottom: 0.875rem; display: block; }
+
+        .upload-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.25rem;
+            background: var(--duoc-azul-claro);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ─── BUTTONS ─────────────────────────────────────── */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
             font-weight: 600;
             transition: all 0.2s ease;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: inherit;
         }
 
         .btn-primary {
-            background-color: var(--duoc-amarillo);
-            color: #000;
+            background: linear-gradient(135deg, var(--duoc-amarillo), #E6B800);
+            color: #0D2137;
+            box-shadow: 0 2px 8px rgba(245,197,24,0.3);
         }
 
         .btn-primary:hover {
-            background-color: #FFB300;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+            box-shadow: 0 4px 16px rgba(245,197,24,0.45);
+            transform: translateY(-1px);
         }
 
+        /* ─── FILTERS ─────────────────────────────────────── */
         .filters {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .filter-group {
@@ -344,34 +448,40 @@
             margin-bottom: 1rem;
         }
 
-        .filter-item { display: flex; flex-direction: column; }
+        .filter-item { display: flex; flex-direction: column; gap: 0.375rem; }
+
         .filter-item label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .filter-item input, .filter-item select {
-            padding: 0.75rem;
+            padding: 0.625rem 0.875rem;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: var(--input-bg);
+            border-radius: var(--radius-sm);
+            background: var(--input-bg);
             color: var(--text-color);
-            font-size: 0.9rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .filter-item input:focus, .filter-item select:focus {
             outline: none;
             border-color: var(--duoc-amarillo);
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+            box-shadow: 0 0 0 3px rgba(245,197,24,0.12);
         }
 
+        /* ─── TABLES ──────────────────────────────────────── */
         .table-container {
             overflow-x: auto;
-            background-color: var(--card-bg);
-            border-radius: 8px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
             border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         table {
@@ -380,200 +490,134 @@
         }
 
         thead {
-            background-color: var(--duoc-gris);
-            color: white;
+            background: linear-gradient(90deg, var(--duoc-azul) 0%, var(--duoc-azul-mid) 100%);
         }
 
         th {
-            padding: 1rem;
+            padding: 0.875rem 1rem;
             text-align: left;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.7px;
+            color: rgba(255,255,255,0.85);
+            white-space: nowrap;
         }
 
         td {
-            padding: 1rem;
+            padding: 0.875rem 1rem;
             border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
+            font-size: 0.875rem;
         }
 
-        tbody tr:hover { background-color: var(--input-bg); }
+        tbody tr:hover { background: var(--input-bg); }
+        tbody tr:nth-child(even) { background: rgba(15,23,42,0.015); }
+        body.dark-mode tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 
+        /* ─── STATUS BADGES ───────────────────────────────── */
         .status-badge {
             display: inline-block;
-            padding: 0.35rem 0.75rem;
+            padding: 0.25rem 0.625rem;
             border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.72rem;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
-        .status-aprobado { background-color: rgba(39, 174, 96, 0.2); color: var(--success); }
-        .status-rechazado { background-color: rgba(231, 76, 60, 0.2); color: var(--danger); }
-        .status-parcial { background-color: rgba(243, 156, 18, 0.2); color: var(--warning); }
-        .status-activo { background-color: rgba(52, 152, 219, 0.2); color: var(--info); }
+        .status-aprobado  { background: var(--success-light); color: var(--success); }
+        .status-rechazado { background: var(--danger-light);  color: var(--danger);  }
+        .status-parcial   { background: var(--warning-light); color: var(--warning); }
+        .status-activo    { background: var(--info-light);    color: var(--info);    }
 
+        /* ─── CHARTS ──────────────────────────────────────── */
         .chart-container {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: var(--radius);
             padding: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .chart-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
             color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
+        /* ─── ALERTS ──────────────────────────────────────── */
         .alert {
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid;
-            background-color: var(--card-bg);
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.875rem;
+            border-left: 3px solid;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
         }
 
-        .alert-danger {
-            border-left-color: var(--danger);
-            background-color: rgba(231, 76, 60, 0.1);
-        }
+        .alert-danger { border-left-color: var(--danger); background: rgba(239,68,68,0.05); }
 
-        .alert-title { font-weight: 600; margin-bottom: 0.5rem; }
-        .alert-text { font-size: 0.9rem; opacity: 0.9; }
+        .alert-title { font-weight: 700; margin-bottom: 0.375rem; font-size: 0.875rem; }
+        .alert-text  { font-size: 0.85rem; opacity: 0.85; }
 
-        .highlight-keyword {
-            background-color: #FFD700;
-            color: #000;
+        /* ─── HIGHLIGHTS ──────────────────────────────────── */
+        [class^="highlight-"] {
             font-weight: 700;
-            padding: 2px 4px;
-            border-radius: 3px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.92em;
         }
 
-        .highlight-incongruencia {
-            background-color: #9B59B6;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
+        .highlight-keyword        { background: var(--duoc-amarillo); color: #0D2137; }
+        .highlight-incongruencia  { background: #7C3AED; color: #FFF; }
+        .highlight-riesgo-legal   { background: var(--danger); color: #FFF; }
+        .highlight-queja-personal { background: #EA580C; color: #FFF; }
+        .highlight-demora         { background: var(--warning); color: #FFF; }
+        .highlight-ortografia     { background: var(--info); color: #FFF; }
+        .highlight-frustracion    { background: #BE123C; color: #FFF; }
+        .highlight-urgencia       { background: #6D28D9; color: #FFF; }
+        .highlight-incumplimiento { background: #0D9488; color: #FFF; }
+        .highlight-documentacion  { background: #1D4ED8; color: #FFF; }
+        .highlight-aprobacion     { background: #C2410C; color: #FFF; }
 
-        .highlight-riesgo-legal {
-            background-color: #E74C3C;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-queja-personal {
-            background-color: #E67E22;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-demora {
-            background-color: #F39C12;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-demora {
-            background-color: #F39C12;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-ortografia {
-            background-color: #3498DB;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-frustracion {
-            background-color: #C0392B;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-urgencia {
-            background-color: #8E44AD;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-incumplimiento {
-            background-color: #16A085;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-documentacion {
-            background-color: #2980B9;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .highlight-aprobacion {
-            background-color: #D35400;
-            color: #FFF;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
+        /* ─── STAT BOXES ──────────────────────────────────── */
         .stat-box {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
+            border-radius: var(--radius);
+            padding: 1.25rem;
             text-align: center;
+            box-shadow: var(--shadow-sm);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.9rem;
+            font-weight: 800;
             color: var(--duoc-amarillo);
-            margin-bottom: 0.5rem;
+            line-height: 1;
+            margin-bottom: 0.375rem;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            color: var(--secondary);
+            font-size: 0.72rem;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.7px;
+            font-weight: 600;
         }
 
+        /* ─── MODAL ───────────────────────────────────────── */
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s ease;
+            inset: 0;
+            background: rgba(13,33,55,0.55);
+            backdrop-filter: blur(4px);
         }
 
         .modal.show {
@@ -583,13 +627,13 @@
         }
 
         .modal-content {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             padding: 2rem;
-            border-radius: 8px;
-            max-width: 800px;
-            max-height: 80vh;
+            border-radius: var(--radius);
+            width: min(860px, 92vw);
+            max-height: 82vh;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
         }
 
         .modal-header {
@@ -601,23 +645,62 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .modal-title { font-size: 1.3rem; font-weight: 700; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--secondary); }
+        .modal-title { font-size: 1.15rem; font-weight: 700; }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+        .modal-close {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
 
+        .modal-close:hover { background: var(--border-color); color: var(--text-color); }
+
+        /* ─── STATS GRID ──────────────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* ─── PAGE HEADINGS ───────────────────────────────── */
+        .page-heading {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-heading span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        /* ─── RESPONSIVE ──────────────────────────────────── */
         @media (max-width: 1024px) {
-            .sidebar { width: 230px; }
-            .header { margin-left: 230px; }
-            .main-content { margin-left: 230px; }
+            :root { --sidebar-w: 230px; }
         }
 
         @media (max-width: 768px) {
+            :root { --sidebar-w: 0px; --header-h: auto; }
+
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -628,35 +711,30 @@
             .nav-tabs {
                 flex-direction: row;
                 overflow-x: auto;
-                gap: 0.5rem;
+                gap: 0.25rem;
+                padding: 0;
             }
 
-            .nav-tab {
-                flex: 0 0 auto;
-                padding: 0.6rem 1rem;
-                font-size: 0.8rem;
-                margin-bottom: 0;
-                border-left: none;
-                border-bottom: 2px solid transparent;
-            }
-
-            .nav-tab.active {
-                border-left: none;
-                border-bottom: 2px solid var(--duoc-amarillo);
-            }
+            .nav-tab { flex: 0 0 auto; font-size: 0.78rem; padding: 0.5rem 0.75rem; }
 
             .header {
-                margin-left: 0;
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
+                left: 0;
+                height: auto;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                padding: 0.875rem 1rem;
             }
 
-            .main-content { margin-left: 0; }
+            .main-content { margin-left: 0; padding-top: 0; }
             .container { padding: 1rem; }
-            .card-grid { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: 1fr 1fr; }
             .filter-group { grid-template-columns: 1fr; }
             .card-value { font-size: 1.8rem; }
+            .header-clock { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .card-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -665,10 +743,12 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="logo-duoc">
-                <div class="logo-duoc-main">DuocUC</div>
+                <div class="logo-badge"><span class="logo-badge-text">DUC</span></div>
+                <div class="logo-duoc-main">Duoc UC</div>
                 <div class="sidebar-subtext">Viña del Mar</div>
             </div>
         </div>
+        <div class="sidebar-section-label">Navegación</div>
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
             <button class="nav-tab" data-tab="upload">📁 Cargar Datos</button>
@@ -676,7 +756,7 @@
             <button class="nav-tab" data-tab="alertas">🚨 Alertas Críticas</button>
             <button class="nav-tab" data-tab="movimientos">🔄 Movimientos</button>
             <button class="nav-tab" data-tab="solicitudes">📋 Solicitudes</button>
-            <button class="nav-tab" data-tab="solicitudesActivas">🔄 Activas</button>
+            <button class="nav-tab" data-tab="solicitudesActivas">⏳ Activas</button>
         </div>
     </div>
 
@@ -684,12 +764,15 @@
     <div class="main-content">
         <div class="header">
             <div class="header-left">
-                <div class="header-titulo-principal">📊 DUOC UC SEDE VIÑA DEL MAR</div>
-                <div class="header-subtitulo">Reporte Subdirección Académica - CRM</div>
+                <div class="header-titulo-principal">Duoc UC — Sede Viña del Mar</div>
+                <div class="header-subtitulo">Subdirección Académica · CRM Dashboard</div>
             </div>
             <div class="header-clock">
-                <div class="clock-time" id="clockTime">00:00:00</div>
-                <div class="clock-date" id="clockDate">Viernes, 22 de Mayo de 2026</div>
+                <span class="clock-icon">🕐</span>
+                <div class="clock-inner">
+                    <div class="clock-time" id="clockTime">--:--:--</div>
+                    <div class="clock-date" id="clockDate">Cargando fecha...</div>
+                </div>
             </div>
             <button class="theme-toggle" id="themeToggle"></button>
         </div>
@@ -697,7 +780,7 @@
         <div class="container">
             <!-- DASHBOARD -->
             <div id="dashboard" class="tab-content active">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">📊 Dashboard Principal</h2>
+                <h2 class="page-heading">📊 Dashboard Principal</h2>
 
                 <div class="card-grid">
                     <div class="card">
@@ -743,26 +826,30 @@
 
             <!-- CARGAR DATOS -->
             <div id="upload" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">📁 Cargar Base de Datos</h2>
+                <h2 class="page-heading">📁 Cargar Base de Datos</h2>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-                    <div class="upload-section">
-                        <label class="upload-label" for="fileResueltas">
-                            <div class="upload-icon">📄</div>
-                            <div style="font-weight: 600;">Solicitudes Resueltas</div>
-                            <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 0.5rem;">Archivo XLSX</div>
-                        </label>
-                        <input type="file" id="fileResueltas" accept=".xlsx,.xls" />
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.75rem;">
+                    <div class="upload-section" id="dropResueltas">
+                        <input type="file" id="fileResueltas" accept=".xlsx,.xls,.csv" />
+                        <div class="upload-label">
+                            <span class="upload-icon">📄</span>
+                            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">Solicitudes Resueltas</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Arrastra tu archivo aquí o haz clic</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Formatos: XLSX, XLS, CSV</div>
+                            <span class="upload-btn">Seleccionar archivo</span>
+                        </div>
                         <div id="statusResueltas" style="margin-top: 1rem; font-size: 0.85rem;"></div>
                     </div>
 
-                    <div class="upload-section">
-                        <label class="upload-label" for="fileActivas">
-                            <div class="upload-icon">📋</div>
-                            <div style="font-weight: 600;">Solicitudes Activas</div>
-                            <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 0.5rem;">Archivo XLSX</div>
-                        </label>
-                        <input type="file" id="fileActivas" accept=".xlsx,.xls" />
+                    <div class="upload-section" id="dropActivas">
+                        <input type="file" id="fileActivas" accept=".xlsx,.xls,.csv" />
+                        <div class="upload-label">
+                            <span class="upload-icon">📋</span>
+                            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">Solicitudes Activas</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Arrastra tu archivo aquí o haz clic</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Formatos: XLSX, XLS, CSV</div>
+                            <span class="upload-btn">Seleccionar archivo</span>
+                        </div>
                         <div id="statusActivas" style="margin-top: 1rem; font-size: 0.85rem;"></div>
                     </div>
                 </div>
@@ -777,7 +864,7 @@
 
             <!-- COLABORADORES -->
             <div id="colaboradores" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">👤 Análisis de Colaboradores</h2>
+                <h2 class="page-heading">👤 Análisis de Colaboradores</h2>
 
                 <div class="filters">
                     <div class="filter-group">
@@ -896,7 +983,7 @@
 
             <!-- ALERTAS CRÍTICAS -->
             <div id="alertas" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">🚨 Alertas Críticas</h2>
+                <h2 class="page-heading">🚨 Alertas Críticas</h2>
 
                 <div class="filters">
                     <div class="filter-group">
@@ -1004,7 +1091,7 @@
 
             <!-- MOVIMIENTOS -->
             <div id="movimientos" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">🔄 Movimientos Internos</h2>
+                <h2 class="page-heading">🔄 Movimientos Internos</h2>
 
                 <div class="card-grid">
                     <div class="card info">
@@ -1081,7 +1168,7 @@
 
             <!-- SOLICITUDES -->
             <div id="solicitudes" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">📋 Solicitudes Resueltas</h2>
+                <h2 class="page-heading">📋 Solicitudes Resueltas</h2>
 
                 <div class="filters">
                     <div class="filter-group">
@@ -1123,7 +1210,7 @@
 
             <!-- SOLICITUDES ACTIVAS -->
             <div id="solicitudesActivas" class="tab-content">
-                <h2 style="margin-bottom: 1.5rem; color: var(--duoc-amarillo);">🔄 Solicitudes Activas</h2>
+                <h2 class="page-heading">🔄 Solicitudes Activas</h2>
 
                 <div class="card-grid">
                     <div class="card info">
@@ -1233,26 +1320,36 @@
                 'deuda ilegal', 'cobro irregular', 'sanción injusta', 'expulsión injusta'
             ],
             
-            // FALTAS ORTOGRÁFICAS (patrones regex)
+            // DETECCIÓN LINGÜÍSTICA INTELIGENTE - sin diccionario fijo
+            // Usa reglas del español para detectar errores en CUALQUIER palabra
             ortografiaPatrones: [
-                { patron: /\bq\s+(?![ue])/gi, palabra: 'falta palabra "que"' },
-                { patron: /\bxq\b/gi, palabra: 'abreviatura "xq"' },
-                { patron: /\bpq\b/gi, palabra: 'abreviatura "pq"' },
-                { patron: /\btmb\b|\btb\b/gi, palabra: 'abreviatura "tmb/tb"' },
-                { patron: /\bx\s+(?!ray)/gi, palabra: 'uso de "x" por "por"' },
-                { patron: /especifico(?!o)/gi, palabra: 'falta tilde en específico' },
-                { patron: /situacion/gi, palabra: 'falta tilde en situación' },
-                { patron: /solucion/gi, palabra: 'falta tilde en solución' },
-                { patron: /aclaracion/gi, palabra: 'falta tilde en aclaración' },
-                { patron: /motibo/gi, palabra: 'error en "motivo"' },
-                { patron: /informacion/gi, palabra: 'falta tilde en información' },
-                { patron: /construccion/gi, palabra: 'falta tilde en construcción' },
-                { patron: /institucion/gi, palabra: 'falta tilde en institución' },
-                { patron: /educacion/gi, palabra: 'falta tilde en educación' },
-                { patron: /\bs\/r\b|\bsr\b/gi, palabra: 'uso de "s/r" o "sr"' },
-                { patron: /\bq es\b/gi, palabra: 'separación incorrecta "q es"' },
-                { patron: /\bno atiende|no me atiend/gi, palabra: 'error conjugación' },
-                { patron: /porq\b/gi, palabra: 'abreviatura "porq"' }
+                // ── REGLA UNIVERSAL: sufijos que SIEMPRE llevan tilde en español ──
+                // Cubre TODAS las palabras: situación, información, solución, educación...
+                { patron: /\b[a-záéíóúüñ]+cion(es)?\b/gi, palabra: 'falta tilde en sufijo -ción' },
+                { patron: /\b[a-záéíóúüñ]+sion(es)?\b/gi, palabra: 'falta tilde en sufijo -sión' },
+                { patron: /\b[a-záéíóúüñ]+icion(es)?\b/gi, palabra: 'falta tilde en sufijo -ición' },
+                // ── ESDRÚJULAS sin tilde: regla para -tico/-tica/-ico/-ica ──
+                // Cubre: específico, académico, técnico, práctico...
+                { patron: /\b[a-záéíóúüñ]{4,}[^aeiouáéíóú][aeiou]t?[ij]?[ck][oa]s?\b/gi, palabra: 'posible esdrújula sin tilde (-ico/-tico/-ica)' },
+                // ── ABREVIATURAS INFORMALES (patrones genéricos) ──
+                { patron: /\b(xq|pq|porq|tmb|tbn|tb|dnd|ntp|tqm|tki|pa|wn|nt|bn|qlq)\b/gi, palabra: 'abreviatura informal' },
+                { patron: /\bx\s+(?!(ray|favor|f[aá]v|defecto))[a-z]/gi, palabra: 'uso de "x" como "por"' },
+                { patron: /\bq\s+[a-záéíóúüñ]/gi, palabra: 'uso de "q" como "que"' },
+                { patron: /\bk\s+[a-záéíóúüñ]/gi, palabra: 'uso de "k" como "que"' },
+                // ── ERRORES FONÉTICOS FRECUENTES ──
+                { patron: /\bmotibo\b/gi, palabra: 'error: "motivo"' },
+                { patron: /\bhaber\b(?=\s+(?:mucho|poco|algo|nada|más|menos))/gi, palabra: 'posible confusión "haber/a ver"' },
+                { patron: /\baveces\b|\ba\s*veses\b/gi, palabra: 'error: "a veces"' },
+                { patron: /\balla\b(?!\s+(de|donde))/gi, palabra: 'posible confusión "allá/halla"' },
+                { patron: /\basta\b(?!\s+(la\s+vista|luego|pronto))/gi, palabra: 'posible error: "hasta"' },
+                // ── MAYÚSCULAS SOSTENIDAS (urgencia/falta de formato) ──
+                { patron: /\b[A-ZÁÉÍÓÚ]{5,}\b/g, palabra: 'texto en mayúsculas sostenidas' },
+                // ── PUNTUACIÓN EXCESIVA ──
+                { patron: /[!?]{2,}/g, palabra: 'puntuación excesiva' },
+                // ── CONCATENACIONES NUMÉRICAS INFORMALES ──
+                { patron: /\b(salu2|gra2|x2|tod2s?)\b/gi, palabra: 'escritura informal con números' },
+                // ── SEPARACIÓN INCORRECTA ──
+                { patron: /\bs\/r\b/gi, palabra: 'abreviatura "s/r"' }
             ],
             
             // FRUSTRACIÓN DEL ESTUDIANTE
@@ -1408,70 +1505,71 @@
             if (clockDateEl) clockDateEl.textContent = dateString;
         }
 
-        // Actualizar reloj cada segundo
-        setInterval(actualizarReloj, 1000);
-        actualizarReloj(); // Llamar inmediatamente
-
-        function cambiarTab(tabName) {
+        function cambiarTab(tabName, clickedBtn) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            if (clickedBtn) clickedBtn.classList.add('active');
         }
 
         // ============================================
         // CARGA DE ARCHIVOS MEJORADA
         // ============================================
-        function handleFileResueltas(file) {
+        function leerArchivoExcel(file, callback) {
+            const statusEl = callback.statusEl;
             if (!file) return;
+
+            const nombre = file.name.toLowerCase();
+            const esCSV  = nombre.endsWith('.csv');
+
+            statusEl.innerHTML = `<div style="color:var(--text-muted);">⏳ Cargando <strong>${file.name}</strong>…</div>`;
+
             const reader = new FileReader();
+
+            reader.onerror = () => {
+                statusEl.innerHTML = `<div style="color:var(--danger);">❌ Error al leer el archivo. Inténtalo de nuevo.</div>`;
+            };
+
             reader.onload = (e) => {
                 try {
-                    if (typeof XLSX === 'undefined') {
-                        throw new Error('XLSX no está cargado');
+                    let datos;
+                    if (esCSV) {
+                        const texto = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
+                        const wb    = XLSX.read(texto, { type: 'string' });
+                        datos = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                    } else {
+                        if (typeof XLSX === 'undefined') throw new Error('La librería XLSX no está disponible.');
+                        const wb   = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                        datos = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
                     }
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    datosResueltas = XLSX.utils.sheet_to_json(worksheet);
-                    
-                    document.getElementById('statusResueltas').innerHTML = 
-                        `<div style="color: var(--success); font-weight: 600;">✅ ${datosResueltas.length} solicitudes cargadas</div>`;
-                    
-                    procesarDatos();
-                    actualizarDashboard();
-                } catch (error) {
-                    document.getElementById('statusResueltas').innerHTML = 
-                        `<div style="color: var(--danger);">❌ ${error.message}</div>`;
+                    callback(datos);
+                    statusEl.innerHTML = `<div style="color:var(--success);font-weight:700;">✅ ${datos.length} filas cargadas de <em>${file.name}</em></div>`;
+                } catch (err) {
+                    statusEl.innerHTML = `<div style="color:var(--danger);">❌ ${err.message}</div>`;
                 }
             };
+
             reader.readAsArrayBuffer(file);
         }
 
-        function handleFileActivas(file) {
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    if (typeof XLSX === 'undefined') {
-                        throw new Error('XLSX no está cargado');
-                    }
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    datosActivas = XLSX.utils.sheet_to_json(worksheet);
-                    
-                    document.getElementById('statusActivas').innerHTML = 
-                        `<div style="color: var(--success); font-weight: 600;">✅ ${datosActivas.length} solicitudes cargadas</div>`;
-                    
-                    procesarDatos();
-                    actualizarDashboard();
-                } catch (error) {
-                    document.getElementById('statusActivas').innerHTML = 
-                        `<div style="color: var(--danger);">❌ ${error.message}</div>`;
-                }
+        function handleFileResueltas(file) {
+            const fn = (datos) => {
+                datosResueltas = datos;
+                procesarDatos();
+                actualizarDashboard();
             };
-            reader.readAsArrayBuffer(file);
+            fn.statusEl = document.getElementById('statusResueltas');
+            leerArchivoExcel(file, fn);
+        }
+
+        function handleFileActivas(file) {
+            const fn = (datos) => {
+                datosActivas = datos;
+                procesarDatos();
+                actualizarDashboard();
+            };
+            fn.statusEl = document.getElementById('statusActivas');
+            leerArchivoExcel(file, fn);
         }
 
         // ============================================
@@ -1593,35 +1691,36 @@
             if (palabrasDemora.length > 0) {
                 alerta.tipo.push('demora');
             }
-
-            // 5. FALTAS ORTOGRÁFICAS EN RESPUESTA DEL FUNCIONARIO (mejorada)
+            // 5. FALTAS ORTOGRÁFICAS - DETECCIÓN LINGÜÍSTICA SIN DICCIONARIO
+            // Aplica reglas gramaticales del español a cualquier palabra del texto
             let tieneFaltasOrto = false;
-            
-            // Patrones regex
+
+            // Patrones lingüísticos universales
             CRITERIOS_ALERTAS.ortografiaPatrones.forEach(item => {
+                item.patron.lastIndex = 0;
                 if (item.patron.test(textoFuncionario)) {
                     tieneFaltasOrto = true;
                 }
             });
-            
-            // Detectar palabras mal escritas con tolerancia (palabras comunes)
-            const palabrasComunes = [
-                'información', 'situación', 'solución', 'aclaración', 'específico',
-                'educación', 'institución', 'construcción', 'también', 'porque',
-                'disponible', 'que', 'requisitos', 'procedimiento', 'aprobado'
-            ];
-            
-            palabrasComunes.forEach(palabra => {
-                // Buscar variantes con faltas comunes (sin tildes, mayúsculas, etc)
-                const palabraSinTilde = palabra.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const regex = new RegExp(`\\b${palabraSinTilde}\\b`, 'gi');
-                if (regex.test(textoFuncionario) && !textoFuncionario.includes(palabra)) {
-                    tieneFaltasOrto = true;
+
+            if (!tieneFaltasOrto && textoFuncionario) {
+                // REGLA UNIVERSAL: analizar cada token con reglas lingüísticas del español
+                const tokens = textoFuncionario.split(/[\s,;:.!?()\[\]]+/).filter(t => t.length > 2);
+                for (const token of tokens) {
+                    const pal = token.toLowerCase();
+                    const sinTilde = pal.normalize("NFD").replace(/[̀-ͯ]/g, "");
+                    if (sinTilde === pal) {
+                        // Sufijos que SIEMPRE llevan tilde en español
+                        if (/cion(es)?$|sion(es)?$|icion(es)?$/.test(pal)) {
+                            tieneFaltasOrto = true; break;
+                        }
+                    }
                 }
-            });
-            
+            }
+
             if (tieneFaltasOrto) {
                 alerta.tipo.push('ortografia');
+            }
             }
 
             // 6. FRUSTRACIÓN DEL ESTUDIANTE - SOLO EN TEXTO DEL ALUMNO
@@ -2381,23 +2480,56 @@
             document.getElementById('modalSolicitud').classList.remove('show');
         }
 
-        // EVENT LISTENERS
-        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-        document.getElementById('fileResueltas').addEventListener('change', function(e) { handleFileResueltas(e.target.files[0]); });
-        document.getElementById('fileActivas').addEventListener('change', function(e) { handleFileActivas(e.target.files[0]); });
+        // ── INIT ────────────────────────────────────────
+        cargarTema();
+        actualizarReloj();
+        setInterval(actualizarReloj, 1000);
 
+        // ── TABS ─────────────────────────────────────────
         document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                cambiarTab(this.dataset.tab);
+            tab.addEventListener('click', function() {
+                cambiarTab(this.dataset.tab, this);
             });
         });
 
+        // ── THEME ────────────────────────────────────────
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+        // ── MODAL CLOSE ───────────────────────────────────
         window.addEventListener('click', function(e) {
             const modal = document.getElementById('modalSolicitud');
             if (e.target === modal) cerrarModal();
         });
 
-        cargarTema();
+        // ── FILE UPLOAD (click + drag-and-drop) ───────────
+        function setupUpload(inputId, dropId, handler) {
+            const input = document.getElementById(inputId);
+            const drop  = document.getElementById(dropId);
+            if (!input || !drop) return;
+
+            input.addEventListener('change', function(e) {
+                if (e.target.files[0]) handler(e.target.files[0]);
+            });
+
+            drop.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                drop.classList.add('drag-over');
+            });
+
+            drop.addEventListener('dragleave', function() {
+                drop.classList.remove('drag-over');
+            });
+
+            drop.addEventListener('drop', function(e) {
+                e.preventDefault();
+                drop.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file) handler(file);
+            });
+        }
+
+        setupUpload('fileResueltas', 'dropResueltas', handleFileResueltas);
+        setupUpload('fileActivas',   'dropActivas',   handleFileActivas);
     </script>
 </body>
 </html>
