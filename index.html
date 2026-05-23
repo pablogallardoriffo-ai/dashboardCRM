@@ -3,1066 +3,2532 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CRM - Duoc UC Viña del Mar</title>
+    <title>Dashboard Solicitudes Duoc UC - Viña del Mar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
-            --primary: #1B3A5C;
-            --primary-light: #2A5A8F;
-            --accent: #FFD700;
-            --success: #27AE60;
-            --danger: #E74C3C;
-            --warning: #F39C12;
-            --info: #3498DB;
-            --text: #1B3A5C;
-            --text-light: #5A7A9F;
-            --bg: #FFFFFF;
-            --bg-light: #F8FAFB;
-            --border: #E0E8F0;
-            --shadow: rgba(0,0,0,0.08);
-            --shadow-lg: rgba(0,0,0,0.15);
+            --duoc-amarillo: #F5C518;
+            --duoc-amarillo-light: rgba(245,197,24,0.12);
+            --duoc-azul: #0D2137;
+            --duoc-azul-mid: #163352;
+            --duoc-azul-claro: #1E4A7A;
+            --duoc-gris: #1E293B;
+            --duoc-gris-claro: #475569;
+            --success: #10B981;
+            --success-light: rgba(16,185,129,0.1);
+            --danger: #EF4444;
+            --danger-light: rgba(239,68,68,0.1);
+            --warning: #F59E0B;
+            --warning-light: rgba(245,158,11,0.1);
+            --info: #3B82F6;
+            --info-light: rgba(59,130,246,0.1);
+            --secondary: #64748B;
+            --text-color: #0F172A;
+            --text-muted: #64748B;
+            --bg-color: #F1F5F9;
+            --border-color: #E2E8F0;
+            --card-bg: #FFFFFF;
+            --input-bg: #F8FAFC;
+            --sidebar-w: 272px;
+            --header-h: 72px;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 12px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.04);
+            --shadow-lg: 0 10px 30px rgba(15,23,42,0.1), 0 4px 12px rgba(15,23,42,0.06);
         }
-        
+
         body.dark-mode {
-            --text: #ECF0F1;
-            --text-light: #ADB5BD;
-            --bg: #0F2436;
-            --bg-light: #1B3A5C;
-            --border: #2A5A8F;
+            --text-color: #E2E8F0;
+            --text-muted: #94A3B8;
+            --bg-color: #0A1628;
+            --border-color: #1E293B;
+            --card-bg: #0F2137;
+            --input-bg: #0A1628;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            transition: all 0.3s ease;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
             line-height: 1.6;
             display: flex;
-            min-height: 100vh;
+            font-size: 14px;
         }
-        
+
+        /* ─── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
-            width: 280px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            width: var(--sidebar-w);
+            background: linear-gradient(180deg, var(--duoc-azul) 0%, var(--duoc-azul-mid) 60%, var(--duoc-azul-claro) 100%);
+            padding: 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            padding: 2rem 0;
-            box-shadow: 2px 0 16px var(--shadow-lg);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.3);
             z-index: 200;
+            display: flex;
+            flex-direction: column;
         }
-        
-        .sidebar-logo {
-            padding: 1.5rem;
-            border-bottom: 2px solid rgba(255,215,0,0.3);
-            margin-bottom: 2rem;
+
+        .sidebar-header {
+            padding: 1.75rem 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(245,197,24,0.2);
             text-align: center;
         }
-        
-        .logo-text {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--accent);
-            letter-spacing: -1px;
-            margin-bottom: 0.25rem;
-        }
-        
-        .logo-subtext {
-            font-size: 0.65rem;
-            color: rgba(255,215,0,0.9);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-            padding: 0 0.75rem;
-        }
-        
-        .sidebar-item {
+
+        .logo-duoc {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
             margin-bottom: 0.5rem;
         }
-        
-        .sidebar-link {
-            display: flex;
+
+        .logo-badge {
+            display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border: none;
-            background: transparent;
-            width: 100%;
-            text-align: left;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--duoc-amarillo), #E6B800);
+            border-radius: 14px;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 4px 14px rgba(245,197,24,0.4);
         }
-        
-        .sidebar-link:hover {
-            background: rgba(255,215,0,0.15);
-            color: var(--accent);
+
+        .logo-badge-text {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #0D2137;
+            letter-spacing: -1px;
+            font-family: 'Inter', sans-serif;
         }
-        
-        .sidebar-link.active {
-            background: var(--accent);
-            color: var(--primary);
+
+        .logo-duoc-main {
+            color: #FFFFFF;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }
+
+        .sidebar-subtext {
+            font-size: 0.68rem;
+            color: rgba(245,197,24,0.8);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
             font-weight: 600;
         }
-        
-        .main {
-            flex: 1;
-            margin-left: 280px;
-            background-color: var(--bg);
+
+        .sidebar-section-label {
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            padding: 1.25rem 1.25rem 0.5rem;
         }
-        
+
+        .nav-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-family: inherit;
+        }
+
+        .nav-tab:hover {
+            background-color: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(245,197,24,0.18), rgba(245,197,24,0.08));
+            color: var(--duoc-amarillo);
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px rgba(245,197,24,0.25);
+        }
+
+        /* ─── HEADER ──────────────────────────────────────── */
         .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            padding: 1.5rem 2rem;
-            color: white;
-            box-shadow: 0 2px 8px var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-content {
+            background: linear-gradient(90deg, var(--duoc-azul) 0%, var(--duoc-azul-mid) 100%);
+            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.06), var(--shadow-lg);
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-w);
+            right: 0;
+            z-index: 190;
+            height: var(--header-h);
+            border-bottom: 1px solid rgba(245,197,24,0.15);
         }
-        
+
         .header-left {
-            flex: 1;
-        }
-        
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        
-        .header-subtitle {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.9);
-        }
-        
-        .header-right {
             display: flex;
-            align-items: center;
-            gap: 2rem;
+            flex-direction: column;
+            gap: 0.2rem;
         }
-        
-        .clock {
-            text-align: right;
-        }
-        
-        .clock-time {
-            font-size: 1.8rem;
+
+        .header-titulo-principal {
+            color: #FFFFFF;
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--accent);
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
+            letter-spacing: 0.2px;
         }
-        
-        .clock-date {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.9);
-            margin-top: 0.25rem;
-        }
-        
-        .theme-toggle {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 20px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;
-        }
-        
-        .theme-toggle:hover {
-            background: rgba(255,215,0,0.3);
-        }
-        
-        .container {
-            padding: 2rem;
-            max-width: 100%;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid var(--border);
-            overflow-x: auto;
-            padding-bottom: 1rem;
-        }
-        
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-light);
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-        
-        .tab-btn:hover {
-            color: var(--primary);
-        }
-        
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--accent);
-        }
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 4px var(--shadow);
-            transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
-        }
-        
-        .card:hover {
-            box-shadow: 0 4px 12px var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-        
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .kpi {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 1px 4px var(--shadow);
-            transition: all 0.3s ease;
-        }
-        
-        .kpi:hover {
-            box-shadow: 0 4px 12px var(--shadow-lg);
-            border-color: var(--accent);
-        }
-        
-        .kpi-label {
-            font-size: 0.8rem;
-            color: var(--text-light);
+
+        .header-subtitulo {
+            color: rgba(245,197,24,0.75);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
         }
-        
-        .kpi-value {
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--primary);
+
+        .header-clock {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+        }
+
+        .clock-icon {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .clock-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .clock-time {
+            color: var(--duoc-amarillo);
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-family: 'Inter', monospace;
             line-height: 1;
         }
-        
-        .kpi.success .kpi-value { color: var(--success); }
-        .kpi.danger .kpi-value { color: var(--danger); }
-        .kpi.warning .kpi-value { color: var(--warning); }
-        .kpi.info .kpi-value { color: var(--info); }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
+
+        .clock-date {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.65rem;
+            font-weight: 500;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
         }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg-light);
-            color: var(--text);
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: var(--bg);
-            box-shadow: 0 0 0 3px rgba(255,215,0,0.1);
-        }
-        
-        .file-input-wrapper {
+
+        .theme-toggle {
+            width: 64px;
+            height: 34px;
+            background-color: rgba(255,255,255,0.12);
+            border-radius: 34px;
             position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .file-input-label {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            padding: 2rem;
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            background: var(--bg-light);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
+            padding: 0;
+            outline: none;
         }
-        
-        .file-input-label:hover {
-            border-color: var(--accent);
-            background: rgba(255,215,0,0.05);
-        }
-        
-        .file-input-wrapper input[type="file"] {
+
+        .theme-toggle.dark { background-color: rgba(245,197,24,0.2); border-color: rgba(245,197,24,0.35); }
+
+        .theme-toggle::before {
+            content: '☀️';
             position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
+            left: 6px;
+            font-size: 16px;
+            opacity: 1;
+            transition: opacity 0.3s;
         }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
+
+        .theme-toggle::after {
+            content: '🌙';
+            position: absolute;
+            right: 6px;
+            font-size: 16px;
+            opacity: 0.35;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle.dark::before { opacity: 0.3; }
+        .theme-toggle.dark::after { opacity: 1; }
+
+        /* ─── LAYOUT ──────────────────────────────────────── */
+        .main-content { flex: 1; margin-left: var(--sidebar-w); padding-top: var(--header-h); }
+        .container { max-width: 1920px; margin: 0 auto; padding: 1.75rem 2rem; }
+
+        .tab-content { display: none; animation: fadeIn 0.25s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ─── CARDS ───────────────────────────────────────── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--duoc-amarillo), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card:hover::before { opacity: 1; }
+
+        .card.success::before { background: linear-gradient(90deg, var(--success), transparent); opacity: 1; }
+        .card.danger::before  { background: linear-gradient(90deg, var(--danger), transparent); opacity: 1; }
+        .card.warning::before { background: linear-gradient(90deg, var(--warning), transparent); opacity: 1; }
+        .card.info::before    { background: linear-gradient(90deg, var(--info), transparent); opacity: 1; }
+
+        .card-title {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.625rem;
             font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--duoc-amarillo);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .card.success .card-value { color: var(--success); }
+        .card.danger  .card-value { color: var(--danger); }
+        .card.warning .card-value { color: var(--warning); }
+        .card.info    .card-value { color: var(--info); }
+
+        /* ─── UPLOAD ──────────────────────────────────────── */
+        .upload-section {
+            background: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.25s ease;
             cursor: pointer;
+            position: relative;
+        }
+
+        .upload-section.drag-over {
+            border-color: var(--duoc-amarillo);
+            background: var(--duoc-amarillo-light);
+            transform: scale(1.01);
+        }
+
+        .upload-section:hover {
+            border-color: var(--duoc-azul-claro);
+            background: var(--input-bg);
+        }
+
+        .upload-section input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-label { cursor: pointer; display: block; pointer-events: none; }
+        .upload-icon { font-size: 2.75rem; margin-bottom: 0.875rem; display: block; }
+
+        .upload-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.25rem;
+            background: var(--duoc-azul-claro);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ─── BUTTONS ─────────────────────────────────────── */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
             transition: all 0.2s ease;
-            font-size: 0.95rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.375rem;
+            font-family: inherit;
         }
-        
+
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--duoc-amarillo), #E6B800);
+            color: #0D2137;
+            box-shadow: 0 2px 8px rgba(245,197,24,0.3);
         }
-        
+
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px var(--shadow-lg);
+            box-shadow: 0 4px 16px rgba(245,197,24,0.45);
+            transform: translateY(-1px);
         }
-        
+
+        /* ─── FILTERS ─────────────────────────────────────── */
+        .filters {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-item { display: flex; flex-direction: column; gap: 0.375rem; }
+
+        .filter-item label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-item input, .filter-item select {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .filter-item input:focus, .filter-item select:focus {
+            outline: none;
+            border-color: var(--duoc-amarillo);
+            box-shadow: 0 0 0 3px rgba(245,197,24,0.12);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────── */
         .table-container {
             overflow-x: auto;
-            margin-top: 1rem;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--bg);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 4px var(--shadow);
         }
-        
+
         thead {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
+            background: linear-gradient(90deg, var(--duoc-azul) 0%, var(--duoc-azul-mid) 100%);
         }
-        
+
         th {
-            padding: 1.25rem 1rem;
+            padding: 0.875rem 1rem;
             text-align: left;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--accent);
-        }
-        
-        td {
-            padding: 1.1rem 1rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-        }
-        
-        tbody tr {
-            transition: all 0.2s ease;
-        }
-        
-        tbody tr:hover {
-            background: var(--bg-light);
-            box-shadow: inset 0 0 8px var(--shadow);
-        }
-        
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
             font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: rgba(255,255,255,0.85);
             white-space: nowrap;
         }
-        
-        .badge-success { background: rgba(39,174,96,0.1); color: var(--success); }
-        .badge-danger { background: rgba(231,76,60,0.1); color: var(--danger); }
-        .badge-warning { background: rgba(243,156,18,0.1); color: var(--warning); }
-        .badge-info { background: rgba(52,152,219,0.1); color: var(--info); }
-        
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid;
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
         }
-        
-        .alert-danger {
-            background: rgba(231,76,60,0.08);
-            border-color: var(--danger);
-            color: var(--danger);
+
+        tbody tr:hover { background: var(--input-bg); }
+        tbody tr:nth-child(even) { background: rgba(15,23,42,0.015); }
+        body.dark-mode tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+        /* ─── STATUS BADGES ───────────────────────────────── */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
-        
-        .alert-success {
-            background: rgba(39,174,96,0.08);
-            border-color: var(--success);
-            color: var(--success);
+
+        .status-aprobado  { background: var(--success-light); color: var(--success); }
+        .status-rechazado { background: var(--danger-light);  color: var(--danger);  }
+        .status-parcial   { background: var(--warning-light); color: var(--warning); }
+        .status-activo    { background: var(--info-light);    color: var(--info);    }
+
+        /* ─── CHARTS ──────────────────────────────────────── */
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
         }
-        
-        .alert-info {
-            background: rgba(52,152,219,0.08);
-            border-color: var(--info);
-            color: var(--info);
-        }
-        
-        .status-message {
-            margin-top: 0.75rem;
+
+        .chart-title {
             font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
-        
-        .status-success {
-            color: var(--success);
+
+        /* ─── ALERTS ──────────────────────────────────────── */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.875rem;
+            border-left: 3px solid;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
         }
-        
-        .status-error {
-            color: var(--danger);
+
+        .alert-danger { border-left-color: var(--danger); background: rgba(239,68,68,0.05); }
+
+        .alert-title { font-weight: 700; margin-bottom: 0.375rem; font-size: 0.875rem; }
+        .alert-text  { font-size: 0.85rem; opacity: 0.85; }
+
+        /* ─── HIGHLIGHTS ──────────────────────────────────── */
+        [class^="highlight-"] {
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.92em;
         }
-        
+
+        .highlight-keyword        { background: var(--duoc-amarillo); color: #0D2137; }
+        .highlight-incongruencia  { background: #7C3AED; color: #FFF; }
+        .highlight-riesgo-legal   { background: var(--danger); color: #FFF; }
+        .highlight-queja-personal { background: #EA580C; color: #FFF; }
+        .highlight-demora         { background: var(--warning); color: #FFF; }
+        .highlight-ortografia     { background: var(--info); color: #FFF; }
+        .highlight-frustracion    { background: #BE123C; color: #FFF; }
+        .highlight-urgencia       { background: #6D28D9; color: #FFF; }
+        .highlight-incumplimiento { background: #0D9488; color: #FFF; }
+        .highlight-documentacion  { background: #1D4ED8; color: #FFF; }
+        .highlight-aprobacion     { background: #C2410C; color: #FFF; }
+
+        /* ─── STAT BOXES ──────────────────────────────────── */
+        .stat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-number {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--duoc-amarillo);
+            line-height: 1;
+            margin-bottom: 0.375rem;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            font-weight: 600;
+        }
+
+        /* ─── MODAL ───────────────────────────────────────── */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background: rgba(13,33,55,0.55);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            width: min(860px, 92vw);
+            max-height: 82vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title { font-size: 1.15rem; font-weight: 700; }
+
+        .modal-close {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover { background: var(--border-color); color: var(--text-color); }
+
+        /* ─── STATS GRID ──────────────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* ─── PAGE HEADINGS ───────────────────────────────── */
+        .page-heading {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-heading span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        /* ─── RESPONSIVE ──────────────────────────────────── */
         @media (max-width: 1024px) {
-            .sidebar { width: 240px; }
-            .main { margin-left: 240px; }
-            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            :root { --sidebar-w: 230px; }
         }
-        
+
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: static; }
-            .main { margin-left: 0; }
-            .header-content { flex-direction: column; gap: 1rem; }
-            .header-right { flex-direction: column; width: 100%; }
-            .kpi-grid { grid-template-columns: 1fr; }
-            .tabs { flex-wrap: wrap; }
+            :root { --sidebar-w: 0px; --header-h: auto; }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+            }
+
+            .nav-tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 0.25rem;
+                padding: 0;
+            }
+
+            .nav-tab { flex: 0 0 auto; font-size: 0.78rem; padding: 0.5rem 0.75rem; }
+
+            .header {
+                left: 0;
+                height: auto;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                padding: 0.875rem 1rem;
+            }
+
+            .main-content { margin-left: 0; padding-top: 0; }
+            .container { padding: 1rem; }
+            .card-grid { grid-template-columns: 1fr 1fr; }
+            .filter-group { grid-template-columns: 1fr; }
+            .card-value { font-size: 1.8rem; }
+            .header-clock { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .card-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-text">DuocUC</div>
-            <div class="logo-subtext">Viña del Mar</div>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-duoc">
+                <div class="logo-badge"><span class="logo-badge-text">DUC</span></div>
+                <div class="logo-duoc-main">Duoc UC</div>
+                <div class="sidebar-subtext">Viña del Mar</div>
+            </div>
         </div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item"><button class="sidebar-link active" onclick="cambiarTab('dashboard', this)">📊 Dashboard</button></li>
-            <li class="sidebar-item"><button class="sidebar-link" onclick="cambiarTab('upload', this)">📁 Cargar Datos</button></li>
-            <li class="sidebar-item"><button class="sidebar-link" onclick="cambiarTab('solicitudes', this)">📋 Solicitudes</button></li>
-            <li class="sidebar-item"><button class="sidebar-link" onclick="cambiarTab('activas', this)">🔄 Activas</button></li>
-            <li class="sidebar-item"><button class="sidebar-link" onclick="cambiarTab('colaboradores', this)">👥 Colaboradores</button></li>
-            <li class="sidebar-item"><button class="sidebar-link" onclick="cambiarTab('alertas', this)">🚨 Alertas</button></li>
-            <li class="sidebar-item"><button class="sidebar-link" onclick="cambiarTab('movimientos', this)">📊 Movimientos</button></li>
-        </ul>
-    </aside>
-    
-    <!-- MAIN CONTENT -->
-    <main class="main">
-        <!-- HEADER -->
-        <header class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="header-title">📊 DUOC UC SEDE VIÑA DEL MAR</div>
-                    <div class="header-subtitle">Reporte Subdirección Académica - CRM</div>
-                </div>
-                <div class="header-right">
-                    <div class="clock">
-                        <div class="clock-time" id="clockTime">00:00:00</div>
-                        <div class="clock-date" id="clockDate">Cargando...</div>
-                    </div>
-                    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <div class="sidebar-section-label">Navegación</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="nav-tab" data-tab="upload">📁 Cargar Datos</button>
+            <button class="nav-tab" data-tab="colaboradores">👤 Colaboradores</button>
+            <button class="nav-tab" data-tab="alertas">🚨 Alertas Críticas</button>
+            <button class="nav-tab" data-tab="movimientos">🔄 Movimientos</button>
+            <button class="nav-tab" data-tab="solicitudes">📋 Solicitudes</button>
+            <button class="nav-tab" data-tab="solicitudesActivas">⏳ Activas</button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-left">
+                <div class="header-titulo-principal">Duoc UC — Sede Viña del Mar</div>
+                <div class="header-subtitulo">Subdirección Académica · CRM Dashboard</div>
+            </div>
+            <div class="header-clock">
+                <span class="clock-icon">🕐</span>
+                <div class="clock-inner">
+                    <div class="clock-time" id="clockTime">--:--:--</div>
+                    <div class="clock-date" id="clockDate">Cargando fecha...</div>
                 </div>
             </div>
-        </header>
-        
-        <!-- CONTENT -->
+            <button class="theme-toggle" id="themeToggle"></button>
+        </div>
+
         <div class="container">
-            <!-- TAB: DASHBOARD -->
-            <div id="tab-dashboard" class="tab-content active">
-                <h2 class="card-title">📊 Dashboard Principal</h2>
-                <div class="kpi-grid">
-                    <div class="kpi info">
-                        <div class="kpi-label">Total Solicitudes</div>
-                        <div class="kpi-value" id="totalSolicitudes">0</div>
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <h2 class="page-heading">📊 Dashboard Principal</h2>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-title">Total Solicitudes</div>
+                        <div class="card-value" id="kpi-total">0</div>
                     </div>
-                    <div class="kpi success">
-                        <div class="kpi-label">Aprobadas</div>
-                        <div class="kpi-value" id="totalAprobadas">0</div>
+                    <div class="card success">
+                        <div class="card-title">Aprobadas</div>
+                        <div class="card-value" id="kpi-aprobadas">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-aprobadas-pct">0%</div>
                     </div>
-                    <div class="kpi danger">
-                        <div class="kpi-label">Rechazadas</div>
-                        <div class="kpi-value" id="totalRechazadas">0</div>
+                    <div class="card danger">
+                        <div class="card-title">Rechazadas</div>
+                        <div class="card-value" id="kpi-rechazadas">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-rechazadas-pct">0%</div>
                     </div>
-                    <div class="kpi warning">
-                        <div class="kpi-label">En Proceso</div>
-                        <div class="kpi-value" id="totalProceso">0</div>
+                    <div class="card warning">
+                        <div class="card-title">Parciales</div>
+                        <div class="card-value" id="kpi-parciales">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-parciales-pct">0%</div>
+                    </div>
+                    <div class="card info">
+                        <div class="card-title">KPI Satisfacción</div>
+                        <div class="card-value" id="kpi-satisfaccion">0%</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Alertas Críticas</div>
+                        <div class="card-value" id="kpi-alertas">0</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="chart-container">
+                        <div class="chart-title">Estados de Solicitudes</div>
+                        <canvas id="chartEstados"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Tipos de Servicio</div>
+                        <canvas id="chartServicios"></canvas>
                     </div>
                 </div>
             </div>
-            
-            <!-- TAB: UPLOAD -->
-            <div id="tab-upload" class="tab-content">
-                <div class="card">
-                    <h3 class="card-title">📁 Cargar Base de Datos</h3>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Solicitudes Resueltas (XLSX)</label>
-                        <div class="file-input-wrapper">
-                            <label class="file-input-label">
-                                <span>📄 Haz clic o arrastra archivo XLSX</span>
-                                <input type="file" id="fileResueltas" accept=".xlsx,.xls" onchange="handleFileResueltas(event)">
-                            </label>
+
+            <!-- CARGAR DATOS -->
+            <div id="upload" class="tab-content">
+                <h2 class="page-heading">📁 Cargar Base de Datos</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.75rem;">
+                    <div class="upload-section" id="dropResueltas">
+                        <input type="file" id="fileResueltas" accept=".xlsx,.xls,.csv" />
+                        <div class="upload-label">
+                            <span class="upload-icon">📄</span>
+                            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">Solicitudes Resueltas</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Arrastra tu archivo aquí o haz clic</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Formatos: XLSX, XLS, CSV</div>
+                            <span class="upload-btn">Seleccionar archivo</span>
                         </div>
-                        <div id="statusResueltas" class="status-message"></div>
+                        <div id="statusResueltas" style="margin-top: 1rem; font-size: 0.85rem;"></div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Solicitudes Activas (XLSX)</label>
-                        <div class="file-input-wrapper">
-                            <label class="file-input-label">
-                                <span>📄 Haz clic o arrastra archivo XLSX</span>
-                                <input type="file" id="fileActivas" accept=".xlsx,.xls" onchange="handleFileActivas(event)">
-                            </label>
+
+                    <div class="upload-section" id="dropActivas">
+                        <input type="file" id="fileActivas" accept=".xlsx,.xls,.csv" />
+                        <div class="upload-label">
+                            <span class="upload-icon">📋</span>
+                            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">Solicitudes Activas</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Arrastra tu archivo aquí o haz clic</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Formatos: XLSX, XLS, CSV</div>
+                            <span class="upload-btn">Seleccionar archivo</span>
                         </div>
-                        <div id="statusActivas" class="status-message"></div>
+                        <div id="statusActivas" style="margin-top: 1rem; font-size: 0.85rem;"></div>
+                    </div>
+                </div>
+
+                <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">ℹ️ Información de Carga</h3>
+                    <div id="uploadInfo" style="font-size: 0.9rem; line-height: 1.8;">
+                        <p>✅ No hay datos cargados. Carga los archivos XLSX para comenzar.</p>
                     </div>
                 </div>
             </div>
-            
-            <!-- TAB: SOLICITUDES -->
-            <div id="tab-solicitudes" class="tab-content">
+
+            <!-- COLABORADORES -->
+            <div id="colaboradores" class="tab-content">
+                <h2 class="page-heading">👤 Análisis de Colaboradores</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label>Seleccionar Colaborador</label>
+                            <select id="colaboradorFilter">
+                                <option value="">-- Todos los colaboradores --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="colaboradorDetailContainer" style="display: none;">
+                    <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(44, 62, 80, 0.05) 100%);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <div class="card-title">Colaborador</div>
+                                <div style="font-size: 1.3rem; font-weight: 700;" id="colaboradorNombre">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Total Solicitudes</div>
+                                <div style="font-size: 1.3rem; font-weight: 700;" id="colaboradorTotal">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Tasa Aprobación</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: var(--success);" id="colaboradorTasaAprobacion">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Tiempo Promedio Respuesta</div>
+                                <div style="font-size: 1.3rem; font-weight: 700;" id="colaboradorTiempoRespuesta">-</div>
+                            </div>
+                            <div>
+                                <div class="card-title">Alertas Críticas</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: var(--danger);" id="colaboradorAlertas">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" style="margin-bottom: 2rem;">
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabAprobadas">0</div>
+                            <div class="stat-label">Aprobadas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabRechazadas">0</div>
+                            <div class="stat-label">Rechazadas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabParciales">0</div>
+                            <div class="stat-label">Parciales</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="colabPromMovimientos">0</div>
+                            <div class="stat-label">Prom. Movimientos</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <div class="card-title">Tasa Aprobación vs Sede</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <div>Colaborador: <span id="compareAprobColaborador" style="font-weight: 700; color: var(--duoc-amarillo);">-</span></div>
+                                    <div>Sede: <span id="compareAprobSede" style="font-weight: 700; color: var(--secondary);">-</span></div>
+                                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                                        Diferencia: <span id="compareAprobDiff" style="font-weight: 700;">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="card-title">Tiempo Respuesta vs Sede</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <div>Colaborador: <span id="compareTiempoColaborador" style="font-weight: 700; color: var(--duoc-amarillo);">-</span></div>
+                                    <div>Sede: <span id="compareTiempoSede" style="font-weight: 700; color: var(--secondary);">-</span></div>
+                                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                                        Diferencia: <span id="compareTiempoDiff" style="font-weight: 700;">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="card-title">Movimientos Internos vs Sede</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <div>Colaborador: <span id="compareMovColaborador" style="font-weight: 700; color: var(--duoc-amarillo);">-</span></div>
+                                    <div>Sede: <span id="compareMovSede" style="font-weight: 700; color: var(--secondary);">-</span></div>
+                                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                                        Diferencia: <span id="compareMovDiff" style="font-weight: 700;">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
-                    <h3 class="card-title">📋 Solicitudes Resueltas</h3>
+                    <div class="chart-title" style="margin-bottom: 1rem;">🏆 Ranking de Colaboradores</div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Número</th>
-                                    <th>Estudiante</th>
-                                    <th>Servicio</th>
-                                    <th>Estado</th>
+                                    <th>#</th>
                                     <th>Colaborador</th>
-                                    <th>Fecha</th>
-                                    <th>Días</th>
+                                    <th>Solicitudes</th>
+                                    <th>Tasa Aprobación</th>
+                                    <th>Tiempo Promedio</th>
+                                    <th>Prom. Movimientos</th>
+                                    <th>Alertas</th>
                                 </tr>
                             </thead>
-                            <tbody id="solicitudesTabla">
-                                <tr><td colspan="7" style="text-align: center; color: var(--text-light);">Carga archivos para ver datos</td></tr>
+                            <tbody id="rankingColaboradores">
+                                <tr><td colspan="7" style="text-align: center; color: var(--secondary);">Cargando datos...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            
-            <!-- TAB: ACTIVAS -->
-            <div id="tab-activas" class="tab-content">
-                <div class="card">
-                    <h3 class="card-title">🔄 Solicitudes Activas</h3>
-                    <div class="kpi-grid">
-                        <div class="kpi info">
-                            <div class="kpi-label">Total Activas</div>
-                            <div class="kpi-value" id="activasTotal">0</div>
+
+            <!-- ALERTAS CRÍTICAS -->
+            <div id="alertas" class="tab-content">
+                <h2 class="page-heading">🚨 Alertas Críticas</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label>Tipo de Alerta</label>
+                            <select id="alertaTypeFilter">
+                                <option value="">-- Todos --</option>
+                                <option value="incongruencia">🔄 Incongruencia</option>
+                                <option value="riesgo_legal">⚖️ Riesgo Legal</option>
+                                <option value="queja_personal">😠 Queja Personal</option>
+                                <option value="demora">⏱️ Demora Respuesta</option>
+                                <option value="ortografia">✏️ Errores Ortográficos</option>
+                                <option value="frustracion">😢 Frustración Estudiante</option>
+                                <option value="urgencia">🔴 Urgencia</option>
+                                <option value="incumplimiento">⚠️ Incumplimiento Normativo</option>
+                                <option value="documentacion">📄 Documentación Insuficiente</option>
+                                <option value="aprobacion_dudosa">❓ Aprobación Dudosa</option>
+                            </select>
                         </div>
-                        <div class="kpi warning">
-                            <div class="kpi-label">Mayor 7 días</div>
-                            <div class="kpi-value" id="activas7dias">0</div>
-                        </div>
-                        <div class="kpi danger">
-                            <div class="kpi-label">Mayor 30 días</div>
-                            <div class="kpi-value" id="activas30dias">0</div>
-                        </div>
-                        <div class="kpi info">
-                            <div class="kpi-label">Promedio días</div>
-                            <div class="kpi-value" id="activasPromedio">0</div>
+                        <div class="filter-item">
+                            <label>Colaborador</label>
+                            <select id="alertaColaboradorFilter">
+                                <option value="">-- Todos --</option>
+                            </select>
                         </div>
                     </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="filtrarAlertas()">🔍 Filtrar</button>
+                        <button class="btn btn-primary" style="background-color: var(--secondary);" onclick="limpiarFiltrosAlertas()">↺ Limpiar</button>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card danger">
+                        <div class="card-title">Incongruencias</div>
+                        <div class="card-value" id="alertaIncongruencias">0</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Riesgos Legales</div>
+                        <div class="card-value" id="alertaRiesgosLegales">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Quejas Personal</div>
+                        <div class="card-value" id="alertaQuejasPersonal">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Demoras</div>
+                        <div class="card-value" id="alertaDemoras">0</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Errores Ortográficos</div>
+                        <div class="card-value" id="alertaOrtografia">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Frustración Estudiante</div>
+                        <div class="card-value" id="alertaFrustracion">0</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Urgencias</div>
+                        <div class="card-value" id="alertaUrgencia">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Incumplimiento Normativo</div>
+                        <div class="card-value" id="alertaIncumplimiento">0</div>
+                    </div>
+                    <div class="card info">
+                        <div class="card-title">Documentación Insuficiente</div>
+                        <div class="card-value" id="alertaDocumentacion">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Aprobación Dudosa</div>
+                        <div class="card-value" id="alertaAprobacionDudosa">0</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="chart-title">🔴 Top Colaboradores con Alertas</div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Número</th>
+                                    <th>#</th>
+                                    <th>Colaborador</th>
+                                    <th>Incongruencias</th>
+                                    <th>Riesgos Legales</th>
+                                    <th>Quejas Personal</th>
+                                    <th>Ortografía</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topAlertasColaboradores">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="chart-title">Detalle de Alertas</div>
+                    <div id="alertasDetalle" style="max-height: 1000px; overflow-y: auto;">
+                        <p style="text-align: center; color: var(--secondary);">Cargando alertas...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOVIMIENTOS -->
+            <div id="movimientos" class="tab-content">
+                <h2 class="page-heading">🔄 Movimientos Internos</h2>
+
+                <div class="card-grid">
+                    <div class="card info">
+                        <div class="card-title">Total Movimientos</div>
+                        <div class="card-value" id="movTotalMovimientos">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Promedio por Solicitud</div>
+                        <div class="card-value" id="movPromedio">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Solicitudes con >3 Mov.</div>
+                        <div class="card-value" id="movMultiples">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Colaboradores Activos</div>
+                        <div class="card-value" id="movColaboradores">0</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="chart-container">
+                        <div class="chart-title">Distribución de Movimientos</div>
+                        <canvas id="chartMovimientosDistro"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Top 10 Colaboradores por Movimientos</div>
+                        <canvas id="chartMovimientosColaboradores"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="chart-title">👥 Análisis de Movimientos por Usuario</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Colaborador</th>
+                                    <th>Total Solicitudes</th>
+                                    <th>Total Movimientos</th>
+                                    <th>Promedio por Solicitud</th>
+                                    <th>Solicitudes >3 Mov.</th>
+                                    <th>Tasa de Derivación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movColaboradoresTabla">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">📊 Solicitudes con Mayor Cantidad de Movimientos</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Solicitud</th>
+                                    <th>Servicio</th>
+                                    <th>Movimientos</th>
+                                    <th>Responsable Principal</th>
+                                    <th>Fecha Creación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movDetalleTabla">
+                                <tr><td colspan="5" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOLICITUDES -->
+            <div id="solicitudes" class="tab-content">
+                <h2 class="page-heading">📋 Solicitudes Resueltas</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label>Estado</label>
+                            <select id="solicitudEstadoFilter" onchange="filtrarSolicitudes()">
+                                <option value="">-- Todos --</option>
+                                <option value="Aprobado">✅ Aprobado</option>
+                                <option value="Rechazado">❌ Rechazado</option>
+                                <option value="Rechazado por Duplicidad">⚠️ Rechazado por Duplicidad</option>
+                                <option value="Aprobado Parcialmente">⚡ Aprobado Parcialmente</option>
+                                <option value="En Curso">🔄 En Curso</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Solicitud</th>
                                     <th>Estudiante</th>
                                     <th>Servicio</th>
+                                    <th>Estado</th>
                                     <th>Colaborador</th>
                                     <th>Fecha Creación</th>
                                     <th>Días Activa</th>
                                 </tr>
                             </thead>
-                            <tbody id="activasTabla">
-                                <tr><td colspan="6" style="text-align: center; color: var(--text-light);">Sin solicitudes activas</td></tr>
+                            <tbody id="solicitudesTabla">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            
-            <!-- TAB: ALERTAS -->
-            <div id="tab-alertas" class="tab-content">
-                <div class="card">
-                    <h3 class="card-title">🚨 Alertas Ortográficas</h3>
-                    <div id="alertasContainer">
-                        <p style="text-align: center; color: var(--text-light); padding: 2rem;">Carga datos para detectar alertas</p>
+
+            <!-- SOLICITUDES ACTIVAS -->
+            <div id="solicitudesActivas" class="tab-content">
+                <h2 class="page-heading">🔄 Solicitudes Activas</h2>
+
+                <div class="card-grid">
+                    <div class="card info">
+                        <div class="card-title">Total Activas</div>
+                        <div class="card-value" id="activasTotalCount">0</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Activas >7 días</div>
+                        <div class="card-value" id="activasMayorSemana">0</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Activas >30 días</div>
+                        <div class="card-value" id="activasMayorMes">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Promedio días activa</div>
+                        <div class="card-value" id="activasPromedioDias">0</div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- TAB: COLABORADORES -->
-            <div id="tab-colaboradores" class="tab-content">
-                <div class="card">
-                    <h3 class="card-title">👥 Análisis de Colaboradores</h3>
+
+                <div class="chart-container">
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Solicitud</th>
+                                    <th>Estudiante</th>
+                                    <th>Servicio</th>
                                     <th>Colaborador</th>
-                                    <th>Solicitudes</th>
-                                    <th>Aprobadas</th>
-                                    <th>Rechazadas</th>
-                                    <th>Promedio</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Días Activa</th>
+                                    <th>Estado</th>
                                 </tr>
                             </thead>
-                            <tbody id="colaboradoresTabla">
-                                <tr><td colspan="5" style="text-align: center; color: var(--text-light);">Sin datos</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- TAB: MOVIMIENTOS -->
-            <div id="tab-movimientos" class="tab-content">
-                <div class="card">
-                    <h3 class="card-title">📊 Movimientos Internos</h3>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Colaborador</th>
-                                    <th>Total Movimientos</th>
-                                    <th>Promedio</th>
-                                    <th>Solicitudes Altas</th>
-                                </tr>
-                            </thead>
-                            <tbody id="movimientosTabla">
-                                <tr><td colspan="4" style="text-align: center; color: var(--text-light);">Sin datos</td></tr>
+                            <tbody id="solicitudesActivasTabla">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-    
+    </div>
+
+    <!-- MODAL -->
+    <div id="modalSolicitud" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Detalle de Solicitud</div>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
     <script>
-        // ===== ESTADO GLOBAL =====
+        // ============================================
+        // DATOS GLOBALES
+        // ============================================
         let datosResueltas = [];
         let datosActivas = [];
-        
-        // ===== RELOJ EN TIEMPO REAL =====
+        let dataAnalytics = {
+            colaboradores: {},
+            alertas: [],
+            tiemposRespuesta: []
+        };
+
+        // ============================================
+        // DICCIONARIO EXPANDIDO DE ALERTAS CRÍTICAS
+        // ============================================
+        const CRITERIOS_ALERTAS = {
+            // INCONGRUENCIAS
+            renuncia: ['renunciar', 'dejar', 'salir', 'abandonar', 'quiero dejar', 'deseo retirar', 'solicito retiro', 'me quiero salir', 'dar de baja'],
+            suspension: ['suspender', 'pausar', 'mantener', 'se suspenda', 'segunda suspensión', 'primera suspensión', 'suspensión académica'],
+            
+            // DEMORA RESPONSABLE
+            demoraResponsible: [
+                'mucho tiempo', 'llevo meses', 'llevo días', 'lento', 'nunca responde',
+                'se demora', 'no responde', 'espero hace', 'hace semanas', 'hace meses',
+                'incumplimiento', 'no tiene respuesta', 'sin respuesta', 'olvidó', 'no contesta',
+                'tardío', 'demora', 'atraso', 'dilación', 'postergación', 'se demoran',
+                'esperando', 'llevan meses', 'meses sin respuesta', 'semanas sin', 'días sin',
+                'no se ha', 'sigue esperando', 'sigue sin', 'continúa sin', 'aún sin'
+            ],
+            
+            // QUEJAS AL PERSONAL
+            quejaPersonal: [
+                'grosero', 'mala atención', 'descortés', 'no sabe', 'incompetente',
+                'flojo', 'no entiende', 'es lento', 'se demora', 'mala educación',
+                'falta de respeto', 'fue grosera', 'fue grosero', 'falta de respeto',
+                'no hace su trabajo', 'no sabe su función', 'no debería estar aquí',
+                'poco profesional', 'actitud negativa', 'déspota', 'arrogante', 'prepotente',
+                'desatento', 'negligente', 'irresponsable', 'desordenado', 'desorganizado',
+                'ignorante', 'insolente', 'altanero', 'desinteresado', 'apático'
+            ],
+            
+            // RIESGO LEGAL
+            riesgoLegal: [
+                'sernac', 'ministerio', 'reclamo', 'demanda', 'legal', 'legalidad',
+                'derecho', 'denuncia', 'abogado', 'tribunal', 'discriminación',
+                'ley', 'normativa', 'incumplimiento normativo', 'violación de derechos',
+                'cobro indebido', 'arancel sin justificación', 'violación', 'acoso',
+                'maltratos', 'abuso', 'fraude', 'estafa', 'engaño',
+                'incumplimiento contrato', 'contrato incumplido', 'clausula', 'reglamento',
+                'procedimiento irregular', 'ilegalidad', 'nulidad', 'recurso', 'apelación',
+                'ombudsman', 'superintendencia', 'fiscalía', 'juzgado', 'corte',
+                'deuda ilegal', 'cobro irregular', 'sanción injusta', 'expulsión injusta'
+            ],
+            
+            // DETECCIÓN LINGÜÍSTICA INTELIGENTE - sin diccionario fijo
+            // Usa reglas del español para detectar errores en CUALQUIER palabra
+            ortografiaPatrones: [
+                // ── REGLA UNIVERSAL: sufijos que SIEMPRE llevan tilde en español ──
+                // Cubre TODAS las palabras: situación, información, solución, educación...
+                { patron: /\b[a-záéíóúüñ]+cion(es)?\b/gi, palabra: 'falta tilde en sufijo -ción' },
+                { patron: /\b[a-záéíóúüñ]+sion(es)?\b/gi, palabra: 'falta tilde en sufijo -sión' },
+                { patron: /\b[a-záéíóúüñ]+icion(es)?\b/gi, palabra: 'falta tilde en sufijo -ición' },
+                // ── ESDRÚJULAS sin tilde: regla para -tico/-tica/-ico/-ica ──
+                // Cubre: específico, académico, técnico, práctico...
+                { patron: /\b[a-záéíóúüñ]{4,}[^aeiouáéíóú][aeiou]t?[ij]?[ck][oa]s?\b/gi, palabra: 'posible esdrújula sin tilde (-ico/-tico/-ica)' },
+                // ── ABREVIATURAS INFORMALES (patrones genéricos) ──
+                { patron: /\b(xq|pq|porq|tmb|tbn|tb|dnd|ntp|tqm|tki|pa|wn|nt|bn|qlq)\b/gi, palabra: 'abreviatura informal' },
+                { patron: /\bx\s+(?!(ray|favor|f[aá]v|defecto))[a-z]/gi, palabra: 'uso de "x" como "por"' },
+                { patron: /\bq\s+[a-záéíóúüñ]/gi, palabra: 'uso de "q" como "que"' },
+                { patron: /\bk\s+[a-záéíóúüñ]/gi, palabra: 'uso de "k" como "que"' },
+                // ── ERRORES FONÉTICOS FRECUENTES ──
+                { patron: /\bmotibo\b/gi, palabra: 'error: "motivo"' },
+                { patron: /\bhaber\b(?=\s+(?:mucho|poco|algo|nada|más|menos))/gi, palabra: 'posible confusión "haber/a ver"' },
+                { patron: /\baveces\b|\ba\s*veses\b/gi, palabra: 'error: "a veces"' },
+                { patron: /\balla\b(?!\s+(de|donde))/gi, palabra: 'posible confusión "allá/halla"' },
+                { patron: /\basta\b(?!\s+(la\s+vista|luego|pronto))/gi, palabra: 'posible error: "hasta"' },
+                // ── MAYÚSCULAS SOSTENIDAS (urgencia/falta de formato) ──
+                { patron: /\b[A-ZÁÉÍÓÚ]{5,}\b/g, palabra: 'texto en mayúsculas sostenidas' },
+                // ── PUNTUACIÓN EXCESIVA ──
+                { patron: /[!?]{2,}/g, palabra: 'puntuación excesiva' },
+                // ── CONCATENACIONES NUMÉRICAS INFORMALES ──
+                { patron: /\b(salu2|gra2|x2|tod2s?)\b/gi, palabra: 'escritura informal con números' },
+                // ── SEPARACIÓN INCORRECTA ──
+                { patron: /\bs\/r\b/gi, palabra: 'abreviatura "s/r"' }
+            ],
+            
+            // FRUSTRACIÓN DEL ESTUDIANTE
+            frustracion: [
+                'no aguanto', 'no puedo más', 'estoy cansado', 'harto', 'molesto',
+                'disgustado', 'decepcionado', 'frustrado', 'desesperado', 'agobiado',
+                'estresado', 'no sé qué hacer', 'no tengo solución', 'desesperanza',
+                'no hay justicia', 'es un abuso', 'es injusto', 'por favor ayuden',
+                'urge', 'es urgente', 'necesito ya', 'no aguanta más', 'al borde'
+            ],
+            
+            // URGENCIA
+            urgencia: [
+                'urgente', 'urge', 'urgencia', 'inmediato', 'ya', 'ahora',
+                'pronto', 'antes de', 'vence', 'vencimiento', 'plazo',
+                'no pueden esperar', 'no puedo esperar', 'es prioritario', 'prioridad'
+            ],
+            
+            // INCUMPLIMIENTO NORMATIVO
+            incumplimientoNormativo: [
+                'no cumple', 'incumplimiento', 'no respeta', 'violación de', 'falta a',
+                'no sigue', 'no obedece', 'inaplicable', 'sin validez', 'nulo',
+                'contradice', 'contrario a', 'va en contra', 'vulnera', 'conculca',
+                'procedimiento indebido', 'falta procedimiento', 'sin justificación legal'
+            ],
+            
+            // DOCUMENTACIÓN INSUFICIENTE
+            documentacionInsuficiente: [
+                'sin documentos', 'falta documento', 'documentos incompletos',
+                'no adjunta', 'no incluye', 'falta adjuntar', 'documento faltante',
+                'información incompleta', 'datos faltantes', 'no especifica', 'no detalla',
+                'información vaga', 'descripción incompleta', 'sin detalles'
+            ],
+            
+            // APROBACIÓN DUDOSA
+            aprobacionDudosa: [
+                'no justifica', 'sin razón', 'sin motivo', 'sin explicación',
+                'arbitrario', 'sin criterio', 'inconsistente', 'contradictorio',
+                'no cumple requisitos', 'no reúne condiciones', 'no califica',
+                'aprobación cuestionable', 'decisión rara', 'incoherente'
+            ]
+        };
+
+        // ============================================
+        // FUNCIÓN PARA DESTACAR PALABRAS - CORREGIDA
+        // ============================================
+        function destacarPalabrasClaves(texto, alerta) {
+            if (!texto || !alerta) return texto || '';
+            
+            let textoModificado = texto;
+            const tiposClase = {
+                'incongruencia': 'highlight-incongruencia',
+                'riesgo_legal': 'highlight-riesgo-legal',
+                'queja_personal': 'highlight-queja-personal',
+                'demora': 'highlight-demora',
+                'ortografia': 'highlight-ortografia',
+                'frustracion': 'highlight-frustracion',
+                'urgencia': 'highlight-urgencia',
+                'incumplimiento': 'highlight-incumplimiento',
+                'documentacion': 'highlight-documentacion',
+                'aprobacion_dudosa': 'highlight-aprobacion'
+            };
+
+            // Procesar cada tipo de alerta
+            alerta.tipo.forEach(tipo => {
+                let palabrasResaltar = [];
+
+                // Obtener palabras según tipo
+                if (tipo === 'incongruencia') {
+                    palabrasResaltar = [...CRITERIOS_ALERTAS.renuncia, ...CRITERIOS_ALERTAS.suspension];
+                } else if (tipo === 'riesgo_legal') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.riesgoLegal;
+                } else if (tipo === 'queja_personal') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.quejaPersonal;
+                } else if (tipo === 'demora') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.demoraResponsible;
+                } else if (tipo === 'ortografia') {
+                    // Para ortografía, usar patrones regex
+                    CRITERIOS_ALERTAS.ortografiaPatrones.forEach(item => {
+                        textoModificado = textoModificado.replace(item.patron, 
+                            `<span class="highlight-ortografia">$&</span>`);
+                    });
+                    return; // Saltar al siguiente tipo
+                } else if (tipo === 'frustracion') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.frustracion;
+                } else if (tipo === 'urgencia') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.urgencia;
+                } else if (tipo === 'incumplimiento') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.incumplimientoNormativo;
+                } else if (tipo === 'documentacion') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.documentacionInsuficiente;
+                } else if (tipo === 'aprobacion_dudosa') {
+                    palabrasResaltar = CRITERIOS_ALERTAS.aprobacionDudosa;
+                }
+
+                // Resaltar palabras
+                const clase = tiposClase[tipo];
+                palabrasResaltar.forEach(palabra => {
+                    if (palabra && palabra.length > 0) {
+                        const regex = new RegExp(`(${palabra.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                        textoModificado = textoModificado.replace(regex, 
+                            `<span class="${clase}">$1</span>`);
+                    }
+                });
+            });
+
+            return textoModificado;
+        }
+
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        function cargarTema() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').classList.add('dark');
+            }
+        }
+
+        // ============================================
+        // RELOJ EN TIEMPO REAL
+        // ============================================
         function actualizarReloj() {
             const now = new Date();
+            
+            // Formato hora: HH:MM:SS
             const horas = String(now.getHours()).padStart(2, '0');
             const minutos = String(now.getMinutes()).padStart(2, '0');
             const segundos = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${horas}:${minutos}:${segundos}`;
             
-            const clockTimeEl = document.getElementById('clockTime');
-            if (clockTimeEl) {
-                clockTimeEl.textContent = `${horas}:${minutos}:${segundos}`;
-            }
-            
+            // Formato fecha: Día, DD de Mes de YYYY
             const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
             const diaSemana = dias[now.getDay()];
             const fecha = now.getDate();
             const mes = meses[now.getMonth()];
             const año = now.getFullYear();
             
+            const dateString = `${diaSemana}, ${fecha} de ${mes} de ${año}`;
+            
+            // Actualizar elementos
+            const clockTimeEl = document.getElementById('clockTime');
             const clockDateEl = document.getElementById('clockDate');
-            if (clockDateEl) {
-                clockDateEl.textContent = `${diaSemana}, ${fecha} de ${mes} de ${año}`;
-            }
+            
+            if (clockTimeEl) clockTimeEl.textContent = timeString;
+            if (clockDateEl) clockDateEl.textContent = dateString;
         }
-        
-        // ===== DETECCIÓN INTELIGENTE DE ORTOGRAFÍA =====
-        function levenshteinDistance(a, b) {
-            const m = a.length;
-            const n = b.length;
-            const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
-            
-            for (let i = 0; i <= m; i++) dp[i][0] = i;
-            for (let j = 0; j <= n; j++) dp[0][j] = j;
-            
-            for (let i = 1; i <= m; i++) {
-                for (let j = 1; j <= n; j++) {
-                    if (a[i-1] === b[j-1]) {
-                        dp[i][j] = dp[i-1][j-1];
+
+        function cambiarTab(tabName, clickedBtn) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            if (clickedBtn) clickedBtn.classList.add('active');
+        }
+
+        // ============================================
+        // CARGA DE ARCHIVOS MEJORADA
+        // ============================================
+        function leerArchivoExcel(file, callback) {
+            const statusEl = callback.statusEl;
+            if (!file) return;
+
+            const nombre = file.name.toLowerCase();
+            const esCSV  = nombre.endsWith('.csv');
+
+            statusEl.innerHTML = `<div style="color:var(--text-muted);">⏳ Cargando <strong>${file.name}</strong>…</div>`;
+
+            const reader = new FileReader();
+
+            reader.onerror = () => {
+                statusEl.innerHTML = `<div style="color:var(--danger);">❌ Error al leer el archivo. Inténtalo de nuevo.</div>`;
+            };
+
+            reader.onload = (e) => {
+                try {
+                    let datos;
+                    if (esCSV) {
+                        const texto = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
+                        const wb    = XLSX.read(texto, { type: 'string' });
+                        datos = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
                     } else {
-                        dp[i][j] = 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+                        if (typeof XLSX === 'undefined') throw new Error('La librería XLSX no está disponible.');
+                        const wb   = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                        datos = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                    }
+                    callback(datos);
+                    statusEl.innerHTML = `<div style="color:var(--success);font-weight:700;">✅ ${datos.length} filas cargadas de <em>${file.name}</em></div>`;
+                } catch (err) {
+                    statusEl.innerHTML = `<div style="color:var(--danger);">❌ ${err.message}</div>`;
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleFileResueltas(file) {
+            const fn = (datos) => {
+                datosResueltas = datos;
+                procesarDatos();
+                actualizarDashboard();
+            };
+            fn.statusEl = document.getElementById('statusResueltas');
+            leerArchivoExcel(file, fn);
+        }
+
+        function handleFileActivas(file) {
+            const fn = (datos) => {
+                datosActivas = datos;
+                procesarDatos();
+                actualizarDashboard();
+            };
+            fn.statusEl = document.getElementById('statusActivas');
+            leerArchivoExcel(file, fn);
+        }
+
+        // ============================================
+        // PROCESAMIENTO DE DATOS
+        // ============================================
+        function procesarDatos() {
+            dataAnalytics = { colaboradores: {}, alertas: [], tiemposRespuesta: [] };
+
+            datosResueltas.forEach((row, idx) => {
+                const propietario = row['Propietario'] || 'Sin asignar';
+                const subEstado = row['Sub Estado'] || 'N/A';
+                const descripcion = row['Descripción'] || '';
+                const resolucion = row['Resolución'] || '';
+                const movimientos = parseInt(row['Contador Correos'] || 0);
+                const servicio = row['Servicio Nivel 2'] || row['Servicio Nivel 1'] || 'N/A';
+                const contacto = row['Contacto'] || 'N/A';
+                const numeroSolicitud = row['Número de Solicitud'] || `SOL-${idx}`;
+                const fechaCreacion = row['Fecha de creación'];
+                const fechaResolucion = row['Fecha de resolución'];
+
+                // Calcular tiempo de respuesta
+                let diasRespuesta = null;
+                if (fechaCreacion && fechaResolucion) {
+                    try {
+                        const f1 = new Date(fechaCreacion);
+                        const f2 = new Date(fechaResolucion);
+                        diasRespuesta = Math.ceil((f2 - f1) / (1000 * 60 * 60 * 24));
+                    } catch (e) {}
+                }
+
+                // Inicializar colaborador
+                if (!dataAnalytics.colaboradores[propietario]) {
+                    dataAnalytics.colaboradores[propietario] = {
+                        nombre: propietario,
+                        total: 0,
+                        aprobadas: 0,
+                        rechazadas: 0,
+                        parciales: 0,
+                        alertas: { incongruencias: 0, riesgoLegal: 0, quejaPersonal: 0, demora: 0, ortografia: 0 },
+                        movimientosTotal: 0,
+                        tiemposRespuesta: [],
+                        solicitudes: []
+                    };
+                }
+
+                // Contar datos
+                dataAnalytics.colaboradores[propietario].total++;
+                dataAnalytics.colaboradores[propietario].movimientosTotal += movimientos;
+                if (diasRespuesta) dataAnalytics.colaboradores[propietario].tiemposRespuesta.push(diasRespuesta);
+
+                dataAnalytics.colaboradores[propietario].solicitudes.push({
+                    numero: numeroSolicitud,
+                    servicio: servicio,
+                    estado: subEstado,
+                    contacto: contacto,
+                    fechaCreacion: fechaCreacion,
+                    fechaResolucion: fechaResolucion,
+                    movimientos: movimientos,
+                    descripcion: descripcion,
+                    resolucion: resolucion,
+                    diasRespuesta: diasRespuesta
+                });
+
+                // Contar estados
+                if (subEstado === 'Aprobado') {
+                    dataAnalytics.colaboradores[propietario].aprobadas++;
+                } else if (subEstado === 'Rechazado' || subEstado === 'Rechazado por Duplicidad') {
+                    dataAnalytics.colaboradores[propietario].rechazadas++;
+                } else if (subEstado === 'Aprobado Parcialmente') {
+                    dataAnalytics.colaboradores[propietario].parciales++;
+                }
+
+                // Guardar tiempo para promedio sede
+                if (diasRespuesta) {
+                    dataAnalytics.tiemposRespuesta.push(diasRespuesta);
+                }
+
+                // Detectar alertas
+                detectarAlertas(propietario, numeroSolicitud, descripcion, resolucion, subEstado, contacto, servicio);
+            });
+        }
+
+        function detectarAlertas(propietario, numeroSolicitud, descripcion, resolucion, subEstado, contacto, servicio) {
+            const textoCompleto = (descripcion + ' ' + resolucion).toLowerCase();
+            const textoAlumno = (descripcion || '').toLowerCase();
+            const textoFuncionario = (resolucion || '').toLowerCase();
+            
+            const alerta = {
+                tipo: [],
+                propietario: propietario,
+                solicitud: numeroSolicitud,
+                contacto: contacto,
+                servicio: servicio,
+                descripcion: descripcion,
+                resolucion: resolucion,
+                palabrasDetectadas: []
+            };
+
+            // 1. INCONGRUENCIAS
+            if (CRITERIOS_ALERTAS.renuncia.some(p => textoCompleto.includes(p.toLowerCase())) && 
+                CRITERIOS_ALERTAS.suspension.some(p => textoCompleto.includes(p.toLowerCase()))) {
+                alerta.tipo.push('incongruencia');
+            }
+
+            // 2. RIESGO LEGAL - SOLO EN TEXTO DEL ALUMNO
+            const palabrasLegales = CRITERIOS_ALERTAS.riesgoLegal.filter(p => textoAlumno.includes(p.toLowerCase()));
+            if (palabrasLegales.length > 0) {
+                alerta.tipo.push('riesgo_legal');
+            }
+
+            // 3. QUEJAS PERSONAL - SOLO EN TEXTO DEL ALUMNO
+            const palabrasQuejas = CRITERIOS_ALERTAS.quejaPersonal.filter(p => textoAlumno.includes(p.toLowerCase()));
+            if (palabrasQuejas.length > 0) {
+                alerta.tipo.push('queja_personal');
+            }
+
+            // 4. DEMORA - EN AMBOS TEXTOS
+            const palabrasDemora = CRITERIOS_ALERTAS.demoraResponsible.filter(p => textoCompleto.includes(p.toLowerCase()));
+            if (palabrasDemora.length > 0) {
+                alerta.tipo.push('demora');
+            }
+            // 5. FALTAS ORTOGRÁFICAS - DETECCIÓN LINGÜÍSTICA SIN DICCIONARIO
+            // Aplica reglas gramaticales del español a cualquier palabra del texto
+            let tieneFaltasOrto = false;
+
+            // Patrones lingüísticos universales
+            CRITERIOS_ALERTAS.ortografiaPatrones.forEach(item => {
+                item.patron.lastIndex = 0;
+                if (item.patron.test(textoFuncionario)) {
+                    tieneFaltasOrto = true;
+                }
+            });
+
+            if (!tieneFaltasOrto && textoFuncionario) {
+                // REGLA UNIVERSAL: analizar cada token con reglas lingüísticas del español
+                const tokens = textoFuncionario.split(/[\s,;:.!?()\[\]]+/).filter(t => t.length > 2);
+                for (const token of tokens) {
+                    const pal = token.toLowerCase();
+                    const sinTilde = pal.normalize("NFD").replace(/[̀-ͯ]/g, "");
+                    if (sinTilde === pal) {
+                        // Sufijos que SIEMPRE llevan tilde en español
+                        if (/cion(es)?$|sion(es)?$|icion(es)?$/.test(pal)) {
+                            tieneFaltasOrto = true; break;
+                        }
                     }
                 }
             }
-            return dp[m][n];
+
+            if (tieneFaltasOrto) {
+                alerta.tipo.push('ortografia');
+            }
+
+            // 6. FRUSTRACIÓN DEL ESTUDIANTE - SOLO EN TEXTO DEL ALUMNO
+            const palabrasFrustracion = CRITERIOS_ALERTAS.frustracion.filter(p => textoAlumno.includes(p.toLowerCase()));
+            if (palabrasFrustracion.length > 0) {
+                alerta.tipo.push('frustracion');
+            }
+
+            // 7. URGENCIA - SOLO EN TEXTO DEL ALUMNO
+            const palabrasUrgencia = CRITERIOS_ALERTAS.urgencia.filter(p => textoAlumno.includes(p.toLowerCase()));
+            if (palabrasUrgencia.length > 0) {
+                alerta.tipo.push('urgencia');
+            }
+
+            // 8. INCUMPLIMIENTO NORMATIVO - EN AMBOS
+            const palabrasIncumplimiento = CRITERIOS_ALERTAS.incumplimientoNormativo.filter(p => textoCompleto.includes(p.toLowerCase()));
+            if (palabrasIncumplimiento.length > 0) {
+                alerta.tipo.push('incumplimiento');
+            }
+
+            // 9. DOCUMENTACIÓN INSUFICIENTE - EN AMBOS
+            const palabrasDocumentacion = CRITERIOS_ALERTAS.documentacionInsuficiente.filter(p => textoCompleto.includes(p.toLowerCase()));
+            if (palabrasDocumentacion.length > 0) {
+                alerta.tipo.push('documentacion');
+            }
+
+            // 10. APROBACIÓN DUDOSA - SOLO SI ESTÁ APROBADO EN RESPUESTA DEL FUNCIONARIO
+            if (subEstado === 'Aprobado') {
+                const palabrasAprobacionDudosa = CRITERIOS_ALERTAS.aprobacionDudosa.filter(p => textoFuncionario.includes(p.toLowerCase()));
+                if (palabrasAprobacionDudosa.length > 0) {
+                    alerta.tipo.push('aprobacion_dudosa');
+                }
+            }
+
+            // Registrar alerta si hay tipos detectados
+            if (alerta.tipo.length > 0) {
+                dataAnalytics.alertas.push(alerta);
+                
+                // Contar en colaborador
+                if (!dataAnalytics.colaboradores[propietario].alertas.ortografia) {
+                    dataAnalytics.colaboradores[propietario].alertas.ortografia = 0;
+                }
+                
+                alerta.tipo.forEach(tipo => {
+                    if (tipo === 'incongruencia') dataAnalytics.colaboradores[propietario].alertas.incongruencias++;
+                    else if (tipo === 'riesgo_legal') dataAnalytics.colaboradores[propietario].alertas.riesgoLegal++;
+                    else if (tipo === 'queja_personal') dataAnalytics.colaboradores[propietario].alertas.quejaPersonal++;
+                    else if (tipo === 'demora') dataAnalytics.colaboradores[propietario].alertas.demora++;
+                    else if (tipo === 'ortografia') dataAnalytics.colaboradores[propietario].alertas.ortografia++;
+                });
+            }
         }
-        
-        function normalizarPalabra(palabra) {
-            return palabra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        // ============================================
+        // ACTUALIZAR DASHBOARD
+        // ============================================
+        function actualizarDashboard() {
+            const total = datosResueltas.length;
+            const aprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
+            const rechazadas = datosResueltas.filter(d => d['Sub Estado'] === 'Rechazado' || d['Sub Estado'] === 'Rechazado por Duplicidad').length;
+            const parciales = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado Parcialmente').length;
+
+            const satisfaccion = total > 0 ? ((aprobadas * 100 + parciales * 50) / (total * 100) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-aprobadas').textContent = aprobadas;
+            document.getElementById('kpi-aprobadas-pct').textContent = `${total > 0 ? ((aprobadas/total)*100).toFixed(1) : 0}%`;
+            document.getElementById('kpi-rechazadas').textContent = rechazadas;
+            document.getElementById('kpi-rechazadas-pct').textContent = `${total > 0 ? ((rechazadas/total)*100).toFixed(1) : 0}%`;
+            document.getElementById('kpi-parciales').textContent = parciales;
+            document.getElementById('kpi-parciales-pct').textContent = `${total > 0 ? ((parciales/total)*100).toFixed(1) : 0}%`;
+            document.getElementById('kpi-satisfaccion').textContent = `${satisfaccion}%`;
+            document.getElementById('kpi-alertas').textContent = dataAnalytics.alertas.length;
+
+            document.getElementById('uploadInfo').innerHTML = `
+                <p>✅ <strong>Solicitudes Resueltas:</strong> ${datosResueltas.length}</p>
+                <p>✅ <strong>Solicitudes Activas:</strong> ${datosActivas.length}</p>
+                <p>📊 <strong>Colaboradores:</strong> ${Object.keys(dataAnalytics.colaboradores).length}</p>
+                <p>🚨 <strong>Alertas Críticas:</strong> ${dataAnalytics.alertas.length}</p>
+            `;
+
+            crearGraficos();
+            poblarFiltros();
+            actualizarRankingColaboradores();
+            actualizarTopAlertas();
+            actualizarDetalleAlertas();
+            actualizarMovimientos();
+            actualizarTablaSolicitudes();
+            actualizarSolicitudesActivas();
         }
-        
-        function detectarFaltasOrtografia(texto) {
-            if (!texto || texto.length < 5) return [];
-            
-            const faltasEncontradas = [];
-            const palabrasEnTexto = texto.toLowerCase().match(/\b[a-záéíóúñ]{3,}\b/gi) || [];
-            const palabrasYaReportadas = new Set();
-            
-            const diccionarioReferencia = [
-                'información', 'situación', 'solución', 'aclaración', 'educación', 'institución',
-                'construcción', 'evaluación', 'justificación', 'actualización', 'observación',
-                'descripción', 'inscripción', 'calificación', 'aprobación', 'resolución',
-                'solicitud', 'estudiante', 'colaborador', 'funcionario', 'profesor', 'carrera',
-                'asignatura', 'semestre', 'trimestre', 'clase', 'aula', 'campus', 'horario',
-                'contacto', 'servicio', 'procedimiento', 'proceso', 'estado', 'resultado',
-                'respuesta', 'comentario', 'correo', 'teléfono', 'dirección', 'departamento',
-                'documento', 'certificado', 'motivo', 'problema', 'experiencia', 'requisito',
-                'nota', 'puntaje', 'promedio', 'cambio', 'matrícula', 'pendiente',
-                'disponible', 'específico', 'académica', 'completo', 'activo',
-                'aprobado', 'rechazado', 'parcial', 'especial', 'temporal', 'permanente',
-                'completar', 'enviar', 'aprobar', 'rechazar', 'evaluar', 'revisar',
-                'verificar', 'confirmar', 'actualizar', 'modificar', 'contactar', 'comunicar',
-                'responder', 'entregar', 'registrar', 'solicitar', 'requerir', 'necesitar',
-                'también', 'porque', 'que', 'donde', 'cuando', 'como', 'pero', 'aunque',
-                'además', 'entonces', 'después', 'antes', 'durante', 'según', 'mediante'
-            ];
-            
-            palabrasEnTexto.forEach(palabra => {
-                const palabraNormalizada = normalizarPalabra(palabra);
-                
-                if (palabrasYaReportadas.has(palabraNormalizada)) return;
-                
-                const coincidenciaExacta = diccionarioReferencia.some(ref => 
-                    normalizarPalabra(ref) === palabraNormalizada
-                );
-                
-                if (coincidenciaExacta) return;
-                
-                let mejorMatch = null;
-                let mejorDistancia = 999;
-                
-                diccionarioReferencia.forEach(ref => {
-                    const refNorm = normalizarPalabra(ref);
-                    const distancia = levenshteinDistance(palabraNormalizada, refNorm);
-                    
-                    const diferenciaLongitud = Math.abs(palabra.length - ref.length);
-                    const distanciaPermitida = Math.ceil(Math.min(palabra.length, ref.length) / 3);
-                    
-                    if (distancia > 0 && distancia <= distanciaPermitida && diferenciaLongitud <= 2) {
-                        if (distancia < mejorDistancia) {
-                            mejorDistancia = distancia;
-                            mejorMatch = ref;
+
+        function poblarFiltros() {
+            const colaboradores = Object.keys(dataAnalytics.colaboradores).sort();
+
+            document.getElementById('colaboradorFilter').innerHTML = 
+                '<option value="">-- Todos --</option>' + colaboradores.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            document.getElementById('alertaColaboradorFilter').innerHTML = 
+                '<option value="">-- Todos --</option>' + colaboradores.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        let charts = {};
+
+        function crearGraficos() {
+            Object.values(charts).forEach(chart => { if (chart) chart.destroy(); });
+            charts = {};
+
+            const aprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
+            const rechazadas = datosResueltas.filter(d => d['Sub Estado'] === 'Rechazado' || d['Sub Estado'] === 'Rechazado por Duplicidad').length;
+            const parciales = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado Parcialmente').length;
+
+            const ctxEstados = document.getElementById('chartEstados');
+            if (ctxEstados) {
+                charts.estados = new Chart(ctxEstados, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Aprobadas', 'Rechazadas', 'Parciales'],
+                        datasets: [{
+                            data: [aprobadas, rechazadas, parciales],
+                            backgroundColor: ['#27AE60', '#E74C3C', '#F39C12']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: getComputedStyle(document.body).color } }
                         }
                     }
                 });
-                
-                if (mejorMatch && mejorDistancia > 0 && mejorDistancia <= 2) {
-                    faltasEncontradas.push({
-                        encontrada: palabra,
-                        correcta: mejorMatch,
-                        distancia: mejorDistancia
-                    });
-                    palabrasYaReportadas.add(palabraNormalizada);
-                }
+            }
+
+            const servicios = {};
+            datosResueltas.forEach(d => {
+                const s = d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A';
+                servicios[s] = (servicios[s] || 0) + 1;
             });
-            
-            return faltasEncontradas;
-        }
-        
-        // ===== MANEJO DE ARCHIVOS =====
-        function handleFileResueltas(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    datosResueltas = XLSX.utils.sheet_to_json(sheet);
-                    
-                    const statusEl = document.getElementById('statusResueltas');
-                    statusEl.className = 'status-message status-success';
-                    statusEl.innerHTML = `✅ ${datosResueltas.length} registros cargados`;
-                    
-                    actualizarDashboard();
-                } catch (error) {
-                    const statusEl = document.getElementById('statusResueltas');
-                    statusEl.className = 'status-message status-error';
-                    statusEl.innerHTML = `❌ Error: ${error.message}`;
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-        
-        function handleFileActivas(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    datosActivas = XLSX.utils.sheet_to_json(sheet);
-                    
-                    const statusEl = document.getElementById('statusActivas');
-                    statusEl.className = 'status-message status-success';
-                    statusEl.innerHTML = `✅ ${datosActivas.length} registros cargados`;
-                    
-                    actualizarDashboard();
-                } catch (error) {
-                    const statusEl = document.getElementById('statusActivas');
-                    statusEl.className = 'status-message status-error';
-                    statusEl.innerHTML = `❌ Error: ${error.message}`;
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-        
-        // ===== FUNCIONES UTILITARIAS =====
-        function convertirFechaExcel(valor) {
-            if (!valor) return 'N/A';
-            if (typeof valor === 'number') {
-                const fecha = new Date((valor - 25569) * 86400 * 1000);
-                const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-                return `${fecha.getDate()} ${meses[fecha.getMonth()]}`;
+            const topServicios = Object.entries(servicios).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+            const ctxServicios = document.getElementById('chartServicios');
+            if (ctxServicios) {
+                charts.servicios = new Chart(ctxServicios, {
+                    type: 'bar',
+                    data: {
+                        labels: topServicios.map(s => s[0].substring(0, 20)),
+                        datasets: [{
+                            label: 'Solicitudes',
+                            data: topServicios.map(s => s[1]),
+                            backgroundColor: '#FFC107'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: { legend: { labels: { color: getComputedStyle(document.body).color } } }
+                    }
+                });
             }
-            return valor;
         }
-        
-        function calcularDias(fechaCreacion) {
-            if (!fechaCreacion) return 0;
-            let fecha;
-            if (typeof fechaCreacion === 'number') {
-                fecha = new Date((fechaCreacion - 25569) * 86400 * 1000);
-            } else {
-                fecha = new Date(fechaCreacion);
-            }
-            if (isNaN(fecha)) return 0;
-            return Math.floor((new Date() - fecha) / (1000 * 60 * 60 * 24));
-        }
-        
-        // ===== ACTUALIZAR DASHBOARD =====
-        function actualizarDashboard() {
-            if (datosResueltas.length === 0) return;
-            
-            const total = datosResueltas.length;
-            const aprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
-            const rechazadas = datosResueltas.filter(d => d['Sub Estado'] === 'Rechazado').length;
-            const proceso = datosResueltas.filter(d => d['Sub Estado'] === 'En Curso').length;
-            
-            document.getElementById('totalSolicitudes').textContent = total;
-            document.getElementById('totalAprobadas').textContent = aprobadas;
-            document.getElementById('totalRechazadas').textContent = rechazadas;
-            document.getElementById('totalProceso').textContent = proceso;
-            
-            const html = datosResueltas.slice(0, 50).map((d, i) => `
-                <tr>
-                    <td>${d['Número de Solicitud'] || `SOL-${i}`}</td>
-                    <td>${d['Contacto'] || 'N/A'}</td>
-                    <td>${d['Servicio Nivel 2'] || 'N/A'}</td>
-                    <td><span class="badge badge-info">${d['Sub Estado'] || 'N/A'}</span></td>
-                    <td>${d['Propietario'] || 'N/A'}</td>
-                    <td>${convertirFechaExcel(d['Fecha de creación'])}</td>
-                    <td><span class="badge badge-warning">${calcularDias(d['Fecha de creación'])} días</span></td>
-                </tr>
-            `).join('');
-            document.getElementById('solicitudesTabla').innerHTML = html || '<tr><td colspan="7">Sin datos</td></tr>';
-            
-            if (datosActivas.length > 0) {
-                const activas = datosActivas.filter(d => d['Sub Estado'] !== 'Aprobado' && d['Sub Estado'] !== 'Rechazado');
-                const mayores7 = activas.filter(d => calcularDias(d['Fecha de creación']) > 7).length;
-                const mayores30 = activas.filter(d => calcularDias(d['Fecha de creación']) > 30).length;
-                const promedio = activas.length > 0 ? (activas.reduce((s, d) => s + calcularDias(d['Fecha de creación']), 0) / activas.length).toFixed(1) : 0;
+
+        function actualizarRankingColaboradores() {
+            const colaboradores = Object.values(dataAnalytics.colaboradores)
+                .sort((a, b) => {
+                    const tasaA = a.total > 0 ? (a.aprobadas / a.total) : 0;
+                    const tasaB = b.total > 0 ? (b.aprobadas / b.total) : 0;
+                    return tasaB - tasaA;
+                });
+
+            const html = colaboradores.map((c, idx) => {
+                const tasa = c.total > 0 ? ((c.aprobadas / c.total) * 100).toFixed(1) : 0;
+                const promMov = c.total > 0 ? (c.movimientosTotal / c.total).toFixed(1) : 0;
+                const promTiempo = c.tiemposRespuesta.length > 0 ? 
+                    (c.tiemposRespuesta.reduce((a, b) => a + b, 0) / c.tiemposRespuesta.length).toFixed(1) : 'N/A';
+                const totalAlertas = c.alertas.incongruencias + c.alertas.riesgoLegal + c.alertas.quejaPersonal + c.alertas.demora;
                 
-                document.getElementById('activasTotal').textContent = activas.length;
-                document.getElementById('activas7dias').textContent = mayores7;
-                document.getElementById('activas30dias').textContent = mayores30;
-                document.getElementById('activasPromedio').textContent = promedio;
-                
-                const htmlActivas = activas.slice(0, 50).map((d, i) => `
+                return `
                     <tr>
-                        <td>${d['Número de Solicitud'] || `SOL-${i}`}</td>
-                        <td>${d['Contacto'] || 'N/A'}</td>
-                        <td>${d['Servicio Nivel 2'] || 'N/A'}</td>
-                        <td>${d['Propietario'] || 'N/A'}</td>
-                        <td>${convertirFechaExcel(d['Fecha de creación'])}</td>
-                        <td><span class="badge badge-warning">${calcularDias(d['Fecha de creación'])} días</span></td>
+                        <td>${idx + 1}</td>
+                        <td><strong>${c.nombre}</strong></td>
+                        <td>${c.total}</td>
+                        <td><span style="color: ${tasa >= 80 ? '#27AE60' : tasa >= 60 ? '#F39C12' : '#E74C3C'}; font-weight: 700;">${tasa}%</span></td>
+                        <td>${promTiempo !== 'N/A' ? `${promTiempo} días` : 'N/A'}</td>
+                        <td>${promMov}</td>
+                        <td><span style="color: ${totalAlertas > 5 ? '#E74C3C' : totalAlertas > 0 ? '#F39C12' : '#27AE60'}; font-weight: 700;">${totalAlertas}</span></td>
                     </tr>
-                `).join('');
-                document.getElementById('activasTabla').innerHTML = htmlActivas || '<tr><td colspan="6">Sin activas</td></tr>';
-            }
-            
-            actualizarAlertas();
+                `;
+            }).join('');
+
+            document.getElementById('rankingColaboradores').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin datos</td></tr>';
         }
-        
-        function actualizarAlertas() {
-            const alertas = [];
-            
-            datosResueltas.forEach((d, idx) => {
-                const textoFuncionario = (d['Resolución'] || d['Respuesta'] || '').toString();
-                
-                const faltasOrto = detectarFaltasOrtografia(textoFuncionario);
-                
-                if (faltasOrto.length > 0) {
-                    alertas.push({
-                        id: idx,
-                        numero: d['Número de Solicitud'],
-                        estudiante: d['Contacto'],
-                        colaborador: d['Propietario'],
-                        servicio: d['Servicio Nivel 2'],
-                        faltas: faltasOrto,
-                        textoCompleto: textoFuncionario
-                    });
-                }
-            });
-            
-            const container = document.getElementById('alertasContainer');
-            if (alertas.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 2rem;">✅ No se detectaron alertas ortográficas</p>';
+
+        document.getElementById('colaboradorFilter')?.addEventListener('change', function() {
+            if (!this.value) {
+                document.getElementById('colaboradorDetailContainer').style.display = 'none';
                 return;
             }
+
+            const colab = dataAnalytics.colaboradores[this.value];
+            if (!colab) return;
+
+            const tasa = colab.total > 0 ? ((colab.aprobadas / colab.total) * 100).toFixed(1) : 0;
+            const promMov = colab.total > 0 ? (colab.movimientosTotal / colab.total).toFixed(2) : 0;
+            const promTiempoColab = colab.tiemposRespuesta.length > 0 ?
+                (colab.tiemposRespuesta.reduce((a, b) => a + b, 0) / colab.tiemposRespuesta.length).toFixed(1) : 'N/A';
+
+            // Promedios de sede
+            const allAprobadas = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length;
+            const sedeTasa = datosResueltas.length > 0 ? ((allAprobadas / datosResueltas.length) * 100).toFixed(1) : 0;
+            const sedePromMov = datosResueltas.length > 0 ?
+                (datosResueltas.reduce((sum, d) => sum + (parseInt(d['Contador Correos']) || 0), 0) / datosResueltas.length).toFixed(2) : 0;
+            const sedePromTiempo = dataAnalytics.tiemposRespuesta.length > 0 ?
+                (dataAnalytics.tiemposRespuesta.reduce((a, b) => a + b, 0) / dataAnalytics.tiemposRespuesta.length).toFixed(1) : 'N/A';
+
+            const totalAlertas = colab.alertas.incongruencias + colab.alertas.riesgoLegal + colab.alertas.quejaPersonal + colab.alertas.demora;
+
+            document.getElementById('colaboradorDetailContainer').style.display = 'block';
+            document.getElementById('colaboradorNombre').textContent = colab.nombre;
+            document.getElementById('colaboradorTotal').textContent = colab.total;
+            document.getElementById('colaboradorTasaAprobacion').textContent = `${tasa}%`;
+            document.getElementById('colaboradorTiempoRespuesta').textContent = promTiempoColab !== 'N/A' ? `${promTiempoColab} días` : 'N/A';
+            document.getElementById('colaboradorAlertas').textContent = totalAlertas;
+
+            document.getElementById('colabAprobadas').textContent = colab.aprobadas;
+            document.getElementById('colabRechazadas').textContent = colab.rechazadas;
+            document.getElementById('colabParciales').textContent = colab.parciales;
+            document.getElementById('colabPromMovimientos').textContent = promMov;
+
+            document.getElementById('compareAprobColaborador').textContent = `${tasa}%`;
+            document.getElementById('compareAprobSede').textContent = `${sedeTasa}%`;
+            document.getElementById('compareAprobDiff').textContent = `${(tasa - sedeTasa).toFixed(1)}% ${tasa > sedeTasa ? '✓' : '✗'}`;
+
+            document.getElementById('compareTiempoColaborador').textContent = promTiempoColab !== 'N/A' ? `${promTiempoColab} días` : 'N/A';
+            document.getElementById('compareTiempoSede').textContent = sedePromTiempo !== 'N/A' ? `${sedePromTiempo} días` : 'N/A';
+            document.getElementById('compareTiempoDiff').textContent = promTiempoColab !== 'N/A' && sedePromTiempo !== 'N/A' ? 
+                `${(parseFloat(promTiempoColab) - parseFloat(sedePromTiempo)).toFixed(1)} días ${promTiempoColab < sedePromTiempo ? '✓' : '✗'}` : 'N/A';
+
+            document.getElementById('compareMovColaborador').textContent = promMov;
+            document.getElementById('compareMovSede').textContent = sedePromMov;
+            document.getElementById('compareMovDiff').textContent = `${(promMov - sedePromMov).toFixed(2)} ${promMov < sedePromMov ? '✓' : '✗'}`;
+        });
+
+        function actualizarTopAlertas() {
+            const topColaboradores = Object.entries(dataAnalytics.colaboradores)
+                .map(([nombre, datos]) => ({
+                    nombre: datos.nombre,
+                    incongruencias: datos.alertas.incongruencias,
+                    riesgoLegal: datos.alertas.riesgoLegal,
+                    quejasPersonal: datos.alertas.quejaPersonal,
+                    ortografia: datos.alertas.ortografia || 0,
+                    total: (datos.alertas.incongruencias + datos.alertas.riesgoLegal + datos.alertas.quejaPersonal + datos.alertas.demora + (datos.alertas.ortografia || 0))
+                }))
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 10);
+
+            const html = topColaboradores.map((c, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${c.nombre}</strong></td>
+                    <td>${c.incongruencias}</td>
+                    <td>${c.riesgoLegal}</td>
+                    <td>${c.quejasPersonal}</td>
+                    <td><span style="color: ${c.ortografia > 3 ? '#E74C3C' : c.ortografia > 0 ? '#F39C12' : '#27AE60'}; font-weight: 700;">${c.ortografia}</span></td>
+                    <td><span style="color: ${c.total > 8 ? '#E74C3C' : c.total > 3 ? '#F39C12' : '#27AE60'}; font-weight: 700;">${c.total}</span></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('topAlertasColaboradores').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin alertas</td></tr>';
+
+            // Calcular totales
+            const incongruencias = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.incongruencias, 0);
+            const riesgosLegales = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.riesgoLegal, 0);
+            const quejasPersonal = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.quejaPersonal, 0);
+            const demoras = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + c.alertas.demora, 0);
+            const ortografia = Object.values(dataAnalytics.colaboradores).reduce((sum, c) => sum + (c.alertas.ortografia || 0), 0);
+
+            // Contar nuevas categorías
+            let frustracion = 0, urgencia = 0, incumplimiento = 0, documentacion = 0, aprobacionDudosa = 0;
             
-            container.innerHTML = alertas.slice(0, 20).map(alerta => `
-                <div class="alert alert-danger">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                        <strong>📌 ${alerta.numero}</strong>
-                        <span class="badge badge-danger">${alerta.faltas.length} faltas</span>
+            dataAnalytics.alertas.forEach(alerta => {
+                if (alerta.tipo.includes('frustracion')) frustracion++;
+                if (alerta.tipo.includes('urgencia')) urgencia++;
+                if (alerta.tipo.includes('incumplimiento')) incumplimiento++;
+                if (alerta.tipo.includes('documentacion')) documentacion++;
+                if (alerta.tipo.includes('aprobacion_dudosa')) aprobacionDudosa++;
+            });
+
+            // Actualizar KPIs
+            document.getElementById('alertaIncongruencias').textContent = incongruencias;
+            document.getElementById('alertaRiesgosLegales').textContent = riesgosLegales;
+            document.getElementById('alertaQuejasPersonal').textContent = quejasPersonal;
+            document.getElementById('alertaDemoras').textContent = demoras;
+            document.getElementById('alertaOrtografia').textContent = ortografia;
+            document.getElementById('alertaFrustracion').textContent = frustracion;
+            document.getElementById('alertaUrgencia').textContent = urgencia;
+            document.getElementById('alertaIncumplimiento').textContent = incumplimiento;
+            document.getElementById('alertaDocumentacion').textContent = documentacion;
+            document.getElementById('alertaAprobacionDudosa').textContent = aprobacionDudosa;
+        }
+
+        function actualizarDetalleAlertas() {
+            let html = '';
+            
+            dataAnalytics.alertas.forEach(alerta => {
+                const tiposAlerta = alerta.tipo.map(t => {
+                    const iconos = {
+                        'incongruencia': '🔄',
+                        'riesgo_legal': '⚖️',
+                        'queja_personal': '😠',
+                        'demora': '⏱️',
+                        'ortografia': '✏️'
+                    };
+                    const colores = {
+                        'incongruencia': '#9B59B6',
+                        'riesgo_legal': '#E74C3C',
+                        'queja_personal': '#E67E22',
+                        'demora': '#F39C12',
+                        'ortografia': '#3498DB'
+                    };
+                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.35rem 0.75rem; background-color: ${colores[t]}; color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${iconos[t] || '⚠️'} ${t.toUpperCase().replace('_', ' ')}</span>`;
+                }).join('');
+
+                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta);
+                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta);
+
+                html += `
+                    <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                        <div class="alert-title">
+                            <strong>📌 Solicitud:</strong> ${alerta.solicitud} | 
+                            <strong>👤 Colaborador:</strong> ${alerta.propietario}
+                        </div>
+                        <div style="margin: 0.75rem 0;">
+                            ${tiposAlerta}
+                        </div>
+                        <div class="alert-text">
+                            <strong>📋 Servicio:</strong> ${alerta.servicio}<br/>
+                            <strong>👨‍🎓 Estudiante:</strong> ${alerta.contacto}
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--danger);">📝 Texto del Estudiante:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${descripcionDestacada}
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--info);">💬 Respuesta del Funcionario:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${resolucionDestacada || '<em style="color: var(--secondary);">Sin respuesta registrada</em>'}
+                            </div>
+                        </div>
                     </div>
-                    <p style="margin-bottom: 0.75rem;"><strong>Estudiante:</strong> ${alerta.estudiante}</p>
-                    <p style="margin-bottom: 0.75rem;"><strong>Colaborador:</strong> ${alerta.colaborador}</p>
-                    <p style="margin-bottom: 1rem;"><strong>Servicio:</strong> ${alerta.servicio}</p>
+                `;
+            });
+
+            document.getElementById('alertasDetalle').innerHTML = html || 
+                '<p style="text-align: center; color: var(--success); padding: 2rem;">✅ No hay alertas críticas detectadas</p>';
+        }
+
+        function filtrarAlertas() {
+            const tipoFiltro = document.getElementById('alertaTypeFilter').value;
+            const colaboradorFiltro = document.getElementById('alertaColaboradorFilter').value;
+
+            let alertasFiltradas = dataAnalytics.alertas;
+
+            if (tipoFiltro) {
+                alertasFiltradas = alertasFiltradas.filter(a => a.tipo.includes(tipoFiltro));
+            }
+
+            if (colaboradorFiltro) {
+                alertasFiltradas = alertasFiltradas.filter(a => a.propietario === colaboradorFiltro);
+            }
+
+            let html = '';
+            alertasFiltradas.forEach(alerta => {
+                const tiposAlerta = alerta.tipo.map(t => {
+                    const iconos = { 'incongruencia': '🔄', 'riesgo_legal': '⚖️', 'queja_personal': '😠', 'demora': '⏱️', 'ortografia': '✏️' };
+                    const colores = {
+                        'incongruencia': '#9B59B6',
+                        'riesgo_legal': '#E74C3C',
+                        'queja_personal': '#E67E22',
+                        'demora': '#F39C12',
+                        'ortografia': '#3498DB'
+                    };
+                    return `<span style="display: inline-block; margin-right: 0.5rem; padding: 0.35rem 0.75rem; background-color: ${colores[t]}; color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${iconos[t] || '⚠️'} ${t.toUpperCase().replace('_', ' ')}</span>`;
+                }).join('');
+
+                const descripcionDestacada = destacarPalabrasClaves(alerta.descripcion, alerta);
+                const resolucionDestacada = destacarPalabrasClaves(alerta.resolucion, alerta);
+
+                html += `
+                    <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                        <div class="alert-title">
+                            <strong>📌 Solicitud:</strong> ${alerta.solicitud} | 
+                            <strong>👤 Colaborador:</strong> ${alerta.propietario}
+                        </div>
+                        <div style="margin: 0.75rem 0;">
+                            ${tiposAlerta}
+                        </div>
+                        <div class="alert-text">
+                            <strong>📋 Servicio:</strong> ${alerta.servicio}<br/>
+                            <strong>👨‍🎓 Estudiante:</strong> ${alerta.contacto}
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--danger);">📝 Texto del Estudiante:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${descripcionDestacada}
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <strong style="color: var(--info);">💬 Respuesta del Funcionario:</strong>
+                            <div style="margin-top: 0.5rem; line-height: 1.6; font-size: 0.9rem;">
+                                ${resolucionDestacada || '<em style="color: var(--secondary);">Sin respuesta registrada</em>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('alertasDetalle').innerHTML = html || 
+                '<p style="text-align: center; color: var(--success); padding: 2rem;">✅ No hay alertas con estos criterios</p>';
+        }
+
+        function limpiarFiltrosAlertas() {
+            document.getElementById('alertaTypeFilter').value = '';
+            document.getElementById('alertaColaboradorFilter').value = '';
+            actualizarDetalleAlertas();
+        }
+
+        function actualizarMovimientos() {
+            const movimientos = {};
+            const movimientosPorColaborador = {};
+            let totalMovimientos = 0;
+
+            datosResueltas.forEach(d => {
+                const numMovimientos = parseInt(d['Contador Correos']) || 0;
+                const propietario = d['Propietario'] || 'Sin asignar';
+                
+                if (numMovimientos > 0) {
+                    movimientos[numMovimientos] = (movimientos[numMovimientos] || 0) + 1;
+                    totalMovimientos += numMovimientos;
                     
-                    <div style="background: var(--bg-light); padding: 1rem; border-radius: 8px;">
-                        <strong style="color: var(--info);">✏️ Faltas Encontradas:</strong>
-                        <div style="margin-top: 0.75rem;">
-                            ${alerta.faltas.map(falta => `
-                                <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                                    <span style="color: var(--danger); font-weight: 600;">"${falta.encontrada}"</span>
-                                    <span style="margin: 0 0.5rem;">→</span>
-                                    <span style="color: var(--success); font-weight: 600;">"${falta.correcta}"</span>
-                                </div>
-                            `).join('')}
+                    if (!movimientosPorColaborador[propietario]) {
+                        movimientosPorColaborador[propietario] = {
+                            movimientosTotal: 0,
+                            solicitudes: 0,
+                            solicitudesAltas: 0
+                        };
+                    }
+                    movimientosPorColaborador[propietario].movimientosTotal += numMovimientos;
+                    movimientosPorColaborador[propietario].solicitudes++;
+                    if (numMovimientos > 3) {
+                        movimientosPorColaborador[propietario].solicitudesAltas++;
+                    }
+                }
+            });
+
+            const promedio = datosResueltas.length > 0 ? (totalMovimientos / datosResueltas.length).toFixed(2) : 0;
+            const multiples = Object.entries(movimientos)
+                .filter(([num, count]) => parseInt(num) > 3)
+                .reduce((sum, [num, count]) => sum + count, 0);
+
+            document.getElementById('movTotalMovimientos').textContent = totalMovimientos;
+            document.getElementById('movPromedio').textContent = promedio;
+            document.getElementById('movMultiples').textContent = multiples;
+            document.getElementById('movColaboradores').textContent = Object.keys(movimientosPorColaborador).length;
+
+            // Gráfico de distribución
+            const labels = Object.keys(movimientos).sort((a, b) => parseInt(a) - parseInt(b));
+            const data = labels.map(l => movimientos[l]);
+
+            if (charts.movimientosDistro) charts.movimientosDistro.destroy();
+            const ctxMovimientos = document.getElementById('chartMovimientosDistro');
+            if (ctxMovimientos) {
+                charts.movimientosDistro = new Chart(ctxMovimientos, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.map(l => `${l} mov.`),
+                        datasets: [{
+                            label: 'Solicitudes',
+                            data: data,
+                            backgroundColor: '#3498DB',
+                            borderColor: '#2980B9',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: getComputedStyle(document.body).color }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: getComputedStyle(document.body).color },
+                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color') }
+                            },
+                            x: {
+                                ticks: { color: getComputedStyle(document.body).color }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de colaboradores
+            const topColaboradores = Object.entries(movimientosPorColaborador)
+                .sort((a, b) => b[1].movimientosTotal - a[1].movimientosTotal)
+                .slice(0, 10);
+
+            const ctxColaboradores = document.getElementById('chartMovimientosColaboradores');
+            if (ctxColaboradores) {
+                if (charts.movimientosColaboradores) charts.movimientosColaboradores.destroy();
+                charts.movimientosColaboradores = new Chart(ctxColaboradores, {
+                    type: 'bar',
+                    data: {
+                        labels: topColaboradores.map(c => c[0].substring(0, 20)),
+                        datasets: [{
+                            label: 'Total Movimientos',
+                            data: topColaboradores.map(c => c[1].movimientosTotal),
+                            backgroundColor: '#E74C3C',
+                            borderColor: '#C0392B',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: getComputedStyle(document.body).color }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: getComputedStyle(document.body).color },
+                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color') }
+                            },
+                            y: {
+                                ticks: { color: getComputedStyle(document.body).color }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Tabla de análisis por usuario
+            const htmlColaboradores = Object.entries(movimientosPorColaborador)
+                .sort((a, b) => b[1].movimientosTotal - a[1].movimientosTotal)
+                .map((entry, idx) => {
+                    const [nombre, datos] = entry;
+                    const promMov = (datos.movimientosTotal / datos.solicitudes).toFixed(2);
+                    const tasaDer = ((datos.movimientosTotal / datos.solicitudes) * 100).toFixed(1);
+                    return `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${nombre}</strong></td>
+                            <td>${datos.solicitudes}</td>
+                            <td><span style="background-color: var(--border-color); padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">${datos.movimientosTotal}</span></td>
+                            <td>${promMov}</td>
+                            <td><span style="color: ${datos.solicitudesAltas > 5 ? '#E74C3C' : '#F39C12'}; font-weight: 700;">${datos.solicitudesAltas}</span></td>
+                            <td>${tasaDer}%</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            document.getElementById('movColaboradoresTabla').innerHTML = htmlColaboradores || 
+                '<tr><td colspan="7" style="text-align: center;">Sin movimientos</td></tr>';
+
+            // Tabla de solicitudes con más movimientos
+            const solicitudesConMovimientos = datosResueltas
+                .map((d, idx) => ({
+                    numero: d['Número de Solicitud'] || `SOL-${idx}`,
+                    servicio: d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A',
+                    movimientos: parseInt(d['Contador Correos']) || 0,
+                    colaborador: d['Propietario'] || 'N/A',
+                    fechaCreacion: d['Fecha de creación'] || ''
+                }))
+                .filter(s => s.movimientos > 0)
+                .sort((a, b) => b.movimientos - a.movimientos)
+                .slice(0, 20);
+
+            const htmlTabla = solicitudesConMovimientos.map(s => `
+                <tr>
+                    <td>${s.numero}</td>
+                    <td>${s.servicio.substring(0, 30)}</td>
+                    <td><span style="background-color: var(--border-color); padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">${s.movimientos}</span></td>
+                    <td>${s.colaborador}</td>
+                    <td>${s.fechaCreacion}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('movDetalleTabla').innerHTML = htmlTabla || 
+                '<tr><td colspan="5" style="text-align: center;">Sin movimientos</td></tr>';
+        }
+
+        function actualizarTablaSolicitudes() {
+            filtrarSolicitudes();
+        }
+
+        function filtrarSolicitudes() {
+            const estadoFiltro = document.getElementById('solicitudEstadoFilter')?.value || '';
+            
+            let solicitudesFiltradas = datosResueltas;
+            
+            if (estadoFiltro) {
+                solicitudesFiltradas = datosResueltas.filter(d => d['Sub Estado'] === estadoFiltro);
+            }
+
+            const iconosEstado = {
+                'Aprobado': '✅',
+                'Rechazado': '❌',
+                'Rechazado por Duplicidad': '⚠️',
+                'Aprobado Parcialmente': '⚡',
+                'En Curso': '🔄'
+            };
+
+            const coloresEstado = {
+                'Aprobado': '#27AE60',
+                'Rechazado': '#E74C3C',
+                'Rechazado por Duplicidad': '#F39C12',
+                'Aprobado Parcialmente': '#3498DB',
+                'En Curso': '#9B59B6'
+            };
+
+            const html = solicitudesFiltradas.slice(0, 100).map((d, idx) => {
+                const fechaCreacion = d['Fecha de creación'] ? new Date(d['Fecha de creación']) : null;
+                const hoy = new Date();
+                const diasActiva = fechaCreacion ? Math.floor((hoy - fechaCreacion) / (1000 * 60 * 60 * 24)) : 0;
+                const estado = d['Sub Estado'] || 'N/A';
+                
+                return `
+                    <tr>
+                        <td><strong>${d['Número de Solicitud'] || `SOL-${idx}`}</strong></td>
+                        <td>${d['Contacto'] || 'N/A'}</td>
+                        <td>${d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A'}</td>
+                        <td><span style="background-color: ${coloresEstado[estado] || '#95A5A6'}; color: white; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${iconosEstado[estado] || '❓'} ${estado}</span></td>
+                        <td>${d['Propietario'] || 'Sin asignar'}</td>
+                        <td>${d['Fecha de creación'] || 'N/A'}</td>
+                        <td><span style="background-color: var(--border-color); padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">${diasActiva} días</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('solicitudesTabla').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin solicitudes</td></tr>';
+        }
+
+        function actualizarSolicitudesActivas() {
+            // Filtrar solo solicitudes "En Curso" o "Activas"
+            const solicitudesActivas = datosActivas.filter(d => {
+                const estado = d['Sub Estado'] || '';
+                return estado === 'En Curso' || estado === '';
+            });
+
+            const iconosEstado = {
+                'Aprobado': '✅',
+                'Rechazado': '❌',
+                'Rechazado por Duplicidad': '⚠️',
+                'Aprobado Parcialmente': '⚡',
+                'En Curso': '🔄'
+            };
+
+            const coloresEstado = {
+                'Aprobado': '#27AE60',
+                'Rechazado': '#E74C3C',
+                'Rechazado por Duplicidad': '#F39C12',
+                'Aprobado Parcialmente': '#3498DB',
+                'En Curso': '#9B59B6'
+            };
+
+            // Calcular días activa para cada solicitud
+            const solicitudesConDias = solicitudesActivas.map((d, idx) => {
+                const fechaCreacion = d['Fecha de creación'] ? new Date(d['Fecha de creación']) : null;
+                const hoy = new Date();
+                const diasActiva = fechaCreacion ? Math.floor((hoy - fechaCreacion) / (1000 * 60 * 60 * 24)) : 0;
+                return { ...d, diasActiva, idx };
+            });
+
+            // Ordenar por días activa descendente
+            solicitudesConDias.sort((a, b) => b.diasActiva - a.diasActiva);
+
+            // KPIs
+            const totalActivas = solicitudesConDias.length;
+            const mayorSemana = solicitudesConDias.filter(s => s.diasActiva > 7).length;
+            const mayorMes = solicitudesConDias.filter(s => s.diasActiva > 30).length;
+            const promedioDias = totalActivas > 0 ? 
+                (solicitudesConDias.reduce((sum, s) => sum + s.diasActiva, 0) / totalActivas).toFixed(1) : 0;
+
+            document.getElementById('activasTotalCount').textContent = totalActivas;
+            document.getElementById('activasMayorSemana').textContent = mayorSemana;
+            document.getElementById('activasMayorMes').textContent = mayorMes;
+            document.getElementById('activasPromedioDias').textContent = promedioDias;
+
+            // Tabla de solicitudes activas
+            const html = solicitudesConDias.slice(0, 100).map(d => {
+                const estado = d['Sub Estado'] || 'En Curso';
+                const colorDias = d.diasActiva > 30 ? '#E74C3C' : d.diasActiva > 7 ? '#F39C12' : '#27AE60';
+                
+                return `
+                    <tr>
+                        <td><strong>${d['Número de Solicitud'] || `SOL-${d.idx}`}</strong></td>
+                        <td>${d['Contacto'] || 'N/A'}</td>
+                        <td>${d['Servicio Nivel 2'] || d['Servicio Nivel 1'] || 'N/A'}</td>
+                        <td>${d['Propietario'] || 'Sin asignar'}</td>
+                        <td>${d['Fecha de creación'] || 'N/A'}</td>
+                        <td><span style="background-color: ${colorDias}; color: white; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">${d.diasActiva} días</span></td>
+                        <td><span style="background-color: ${coloresEstado[estado] || '#95A5A6'}; color: white; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${iconosEstado[estado] || '❓'}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('solicitudesActivasTabla').innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Sin solicitudes activas</td></tr>';
+        }
+
+        function mostrarDetalleSolicitud(idx) {
+            const solicitud = datosResueltas[idx];
+            if (!solicitud) return;
+
+            const html = `
+                <div style="font-size: 0.95rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Solicitud</strong>
+                            <p>${solicitud['Número de Solicitud'] || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Estado</strong>
+                            <p><span class="status-badge status-${solicitud['Sub Estado']?.toLowerCase()}">${solicitud['Sub Estado'] || 'N/A'}</span></p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Estudiante</strong>
+                            <p>${solicitud['Contacto'] || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Servicio</strong>
+                            <p>${solicitud['Servicio Nivel 2'] || solicitud['Servicio Nivel 1'] || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                        <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Texto del Estudiante</strong>
+                        <div style="background-color: var(--input-bg); padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+                            ${solicitud['Descripción'] || 'Sin descripción'}
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase;">Respuesta del Colaborador</strong>
+                        <div style="background-color: var(--input-bg); padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+                            ${solicitud['Resolución'] || 'Sin respuesta'}
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modalSolicitud').classList.add('show');
         }
-        
-        // ===== NAVEGACIÓN TABS =====
-        function cambiarTab(tab, button) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
-            
-            const tabElement = document.getElementById(`tab-${tab}`);
-            if (tabElement) {
-                tabElement.classList.add('active');
-            }
-            
-            if (button) {
-                button.classList.add('active');
-            }
+
+        function cerrarModal() {
+            document.getElementById('modalSolicitud').classList.remove('show');
         }
-        
-        // ===== TEMA OSCURO =====
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-        }
-        
-        // ===== INICIALIZACIÓN =====
-        document.addEventListener('DOMContentLoaded', function() {
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-            
-            actualizarReloj();
-            setInterval(actualizarReloj, 1000);
+
+        // ── INIT ────────────────────────────────────────
+        cargarTema();
+        actualizarReloj();
+        setInterval(actualizarReloj, 1000);
+
+        // ── TABS ─────────────────────────────────────────
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                cambiarTab(this.dataset.tab, this);
+            });
         });
+
+        // ── THEME ────────────────────────────────────────
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+        // ── MODAL CLOSE ───────────────────────────────────
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('modalSolicitud');
+            if (e.target === modal) cerrarModal();
+        });
+
+        // ── FILE UPLOAD (click + drag-and-drop) ───────────
+        function setupUpload(inputId, dropId, handler) {
+            const input = document.getElementById(inputId);
+            const drop  = document.getElementById(dropId);
+            if (!input || !drop) return;
+
+            input.addEventListener('change', function(e) {
+                if (e.target.files[0]) handler(e.target.files[0]);
+            });
+
+            drop.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                drop.classList.add('drag-over');
+            });
+
+            drop.addEventListener('dragleave', function() {
+                drop.classList.remove('drag-over');
+            });
+
+            drop.addEventListener('drop', function(e) {
+                e.preventDefault();
+                drop.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file) handler(file);
+            });
+        }
+
+        setupUpload('fileResueltas', 'dropResueltas', handleFileResueltas);
+        setupUpload('fileActivas',   'dropActivas',   handleFileActivas);
     </script>
 </body>
 </html>
