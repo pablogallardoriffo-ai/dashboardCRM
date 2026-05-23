@@ -876,8 +876,9 @@
                         <div style="font-size: 0.85rem; color: var(--secondary);" id="kpi-parciales-pct">0%</div>
                     </div>
                     <div class="card info">
-                        <div class="card-title">KPI Satisfacción</div>
-                        <div class="card-value" id="kpi-satisfaccion">0%</div>
+                        <div class="card-title">Tiempo Promedio Respuesta</div>
+                        <div class="card-value" id="kpi-tiempo-promedio">0</div>
+                        <div style="font-size: 0.85rem; color: var(--secondary);">días</div>
                     </div>
                     <div class="card danger">
                         <div class="card-title">Alertas Críticas</div>
@@ -1328,7 +1329,7 @@
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL Solicitud -->
     <div id="modalSolicitud" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1336,6 +1337,17 @@
                 <button class="modal-close" onclick="cerrarModal()">&times;</button>
             </div>
             <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- MODAL Funcionario (reporte completo) -->
+    <div id="modalColaborador" class="modal">
+        <div class="modal-content" style="max-width: 920px;">
+            <div class="modal-header">
+                <div class="modal-title" id="modalColaboradorTitulo">Reporte del Funcionario</div>
+                <button class="modal-close" onclick="cerrarModalColaborador()">&times;</button>
+            </div>
+            <div id="modalColaboradorBody"></div>
         </div>
     </div>
 
@@ -1350,6 +1362,111 @@
             alertas: [],
             tiemposRespuesta: []
         };
+
+        // ============================================
+        // DICCIONARIO ESPAÑOL — para detección INTELIGENTE de typos REALES
+        // (ignora tildes y mayúsculas; detecta swaps de letras, falta de h,
+        //  s↔z↔c, b↔v, ll↔y, etc., usando distancia de Levenshtein)
+        // ============================================
+        const DICCIONARIO_ES = new Set(`
+a al algo alguien algun alguna algunas alguno algunos alli alla alrededor aqui acaso aca acerca acabar acepto aceptar aceptado acompañar acuerdo adelante ademas adentro adios admite admitir adquirir afirmar afuera agradecer agregar agua ahora ahi alcanzar alcanzo alegre algo algunas alguno alli alma alta alto altos altas amar amable amablemente ambos amigo amiga amigos amistad amor anadir anos anteayer antes antiguo anuncio anuncio aparecer aparece apareció aparte aplicar aplica aplicar apoyar apoyo aprender aprende aprendió aprobar aprobado aprobada apresar aproximadamente aqui arboles arriba arte asi asistir asistencia asunto atender atencion aula aulas aunque ausencia automatico autor aviso ayer ayuda ayudar bajo bajos bajas barrio base basta bastante beneficio bien biblioteca buen bueno buena buenas buenos buscar busca busco caballo cabe cabeza cada caer caera cafe caja calidad calle camara cambiar cambio caminar camino cancion cansado cantidad canto caracter carga cargar caro carrera carta casa casas casi caso castigar causa central centro cerca cerrar cierto ciento cinco cincuenta cita ciudad clara claro clase clases clima cobertura cobra cobrar cobro codigo coincidir cole colegio coleccion colocar color combinar comenzar comencé comenzó comer comercial comienzo comites comite cometer comida como compania compañero compañeros compañera completo completa componer comprar comprender comprende compromiso comun comunicar comunicacion con concepto conclusion conducir conferencia confianza confirmar conmigo conocer conoce conoció conocimiento conseguir consigue consiguió consejo consenso considerar conside consigna constante construir consumo contacto contar contara contesta contestar contesto contiene continuar continua contra contrato control controlar conversacion conversar convertir convertir convocar coordinacion coordinador coordinadora copia correo correos corregir correcto correcta correr cortar corte cosa cosas costo creacion crear crea creer cree creyo crisis criterio criticas critico cruzar cuando cuanto cuantos cuantas cuanta cuarenta cuarto cuatro cubrir cuenta cuentan curso cursos cuyo cuya dar da daba dejar deja dejaba dejaron dejo deber debe debia debian debido decir dice dijo decidir decide decidió decision declarar dedicar definir definitivo defensoría definicion degradar dejarlo del demanda demandar demas demora demoran demoró denominar dentro denuncia denunciar departamento depender depende deposito derecho derechos desarrollo desarrollar desaparecer descansar describir describe descubrir descubre descuento desde desear desea deseado desorden despertar despues destacar destruir detalles detencion detener determinar deuda devolucion devolver dia dias diaria diariamente diciembre dictar dieciocho diecisiete dieciseis dificil digo dijiste diga digan dije dijimos dijeron dinero direccion director directora dirigir disculpa discusion diseño disfrutar disponer disponible distancia distinto distrito divertir division docente doce documento documentos dolar dolor donde dormir dos durante duro durante eduardo educacion educar educativa efecto eficaz eficiencia ejemplo ejercer ejercicio el ella ellas ellos email empezar empieza empezó empleo empresa empresas empujar emocion emplear enamorar encantado encantar encargado encima encontrar encuentra encontró encuesta enero enferma enfermo enfermedad enfocar enfoque enorme enseñar enseña enseñaron entender entiende entendió entera entero entiendo entonces entrada entrar entrega entregar entregaron entregue enviar envia envio envió epoca era eran eras eres es esa ese esto esa esos esas escala escalera escapar escena escenario escoger escolar esconder escribir escribe escribió escrito escuchar escucha escuela esfera esfuerzo eso espacio español especial especifica especifico esperar espera esperó espinas esposa esposo establecer establece esta estado estados estamos estan estar estará estaria este esto estos estudia estudiar estudiante estudiantes etapa europa evaluar evalua evaluo evaluacion evento evidencia evidente evitar exacto examen excelente excepcion exigir exige exigir existencia existir existe expediente experiencia explicar explica explicó explicacion explicarle exponer expresar extender exterior exterminar extra extranjero extremo extremos facil facilidad facilitar factor factores facultad falta faltar faltan familia familias fanatico fascista fatal favor febrero fecha feliz felicidad fenomeno fianza fiebre figura fijar fijo fila filosofia fin final finales fines finalmente financiero firmar fiscal fisico flaco flaco flamenco florecer florida flotar fluido fluir formar forma formal formales formula fortaleza fortalecer fortuna foto fotos fragmento frase frases frecuencia frente fresco frio frontera fronteras fuente fueras fueron fuerza fumar funcion funciones funcionario funcionarios funcionar fundacion fundamental futuro ganar gana gano garantizar gas general generalmente generoso gente gerencia geografia gesto gobernar gobierno golpe golpear gomez gracias grande grandes grano gritar grito grupo grupos guardar guerra gustar gustaria habia habian habil habilidad habia habido habil habilitar habia habia habia habia habido habia habil habilidad hablar habla hablo hablen hace hacer hacemos haciendo hacia hambre hasta hay haya hayan he hecho hecha hemos hermano hermana hermosa hermoso hijo hija hijos hijas historia historico hogar hoja hola hombre hombres hora horas hospital hostil hoy hueso huir humano humilde humedad humo hundir idea ideas identico identificar idioma iglesia igual igualdad igualmente ilusion imagen imaginar impartir imperio imponer importante importancia imposible impresion impuesto impulso inaceptable incapaz incendio incertidumbre incluir incluye incluyo incluso incrementar incumplimiento indemnizacion independiente indicar indica indico indice indicacion individuo industria infancia infeliz inferior infinito informacion informar informar informe informes ingles ingreso ingresos iniciar inicio inicial inicios inmediato inmigrante innovador insistir inspirar instalar instalacion institucion instituto instrumento instituto integro intentar intento intenso interes interesante interior internacional internet interpretar interrumpir intimo introducir invertir investigar investigacion invierno invitar invitacion ir iba iban iban irreal isabel italiano izquierda jamas jardin jefe jefa jerarquia jornada joven jubilar judicial juego juegos jueves juez jugar juicio julio junio juntar junto junta juntos justificar justifico justo juventud justicia kilometro la las lado lados lago lamentable lanzar lanza largo lastima lavar leal leccion lechuga leer lee leyó lejos lengua lentes lento leon letra letras levantar ley leyes liberar liberacion libertad libro libros licencia ligar limpiar limpio linea lista lider llamar llama llamo llegar llega llego llenar llenarse lleno llevar lleva llevo llover lluvia lo lograr loco locos longitud los luego lugar lugares luna lunes luz madera madre madrugada maestro maestra magnifico mal mala maleta malo malos manana mandar mandato manera manifestar mano manos mantener manzana mañana mar maravilloso marca marcar marco marines marmol marzo mas masa matar matricula matar maximo mayo mayor mayores mayoria mecanico medianoche medico medida medio medios mejor mejorar mejora memoria memorial mencionar menor menos mensaje mensajes mensual mercado merecer mesa mes meses metafora meter metro mexico mi miedo miembros mientras mil milenio militar millon ministerio ministro minoria minuto minutos mirada mirar mira misa misericordia mismo mismos misma misterio mitad modelo moderno modificar modo molestar molestia molestos molino momento momentos moneda monje montaña mucho mucha muchos muchas mudarse muerte muerto muerta mujer mujeres mundo mundial mural musica muy nace nacer nacimiento nacion nacional nada nadie naranja nariz narrar natalia nativa natural naturalmente navegar navidad necesario necesaria necesidad necesitar necesita necesito negar negativo negocio negro nervio neuronal nevera ni nieto ningun ninguna ninguno nino niños niveles nivel no noble noche nochebuena nombrar nombre nombres normal normativa norte nos nosotros nota notable notar nota noticia novia novio noviembre nuevo nueva nuevos nuevas nuevo numero numeros nunca o objetar objetivo obligacion obligar obra obras obrero observar observa observo obtener obtiene obtuvo ocasion ocean octubre ocultar ocupar ocurrir ocurre ocurrio ocho ochenta odiar oeste oficial oficina oir oye oyo ojala ojo ojos oler olvidar olvido once operar operacion opinar opinion oponer oportunidad opuesto orden ordenar ordinario orientacion origen original orillas oro oscuro oso otro otra otros otras pagar paga pago paginas pagina pais palabra palabras palacio panel pantalla papa papel papeles paquete par para parar parada paraguas paraiso parar parece parecer parecido pared pareja paro parque parte particular partido partir pasado pasar pasa paso pasaron pasamos paso pasar pasion pasivo paso paz pecho pedir pide pidio pegar pelea peligro pelo pelota peluca pena pensar piensa pensó peor pequeño pequeña pequeños pequeñas perder pierde perdió perdida permiso permitir permite permitio pero perro persona personal personalmente persuadir pertinente pesar peso petroleo petición picar pie piedra pierna pierde pieza pinta pintar pintura pirata piso plan planear plano planta plata platica plato playa plaza plazo pobre poco pocas pocos poder puede pudo policia politica politico politicas pollo poner poner pone puso por porcentaje porque portar posicion posible posicion practica practicar precio precios precisar precisamente precision precoz preferir prefiere prefirio pregunta preguntar preguntas prensa preocupar preocupacion preocuparse preparar prepara presencia presentar presenta presente presento presidente presion preso prestar primer primero primera primeros primeras principal principio principios privacidad privado probable probablemente probar problema problemas procedimiento proceso procesos producir produce produjo producto profesional profesionalmente profesionalismo profesor profesores profesora profundizar profundo programa programar programar progreso prohibir prohibido prometer pronto pronunciar propio propia propiedad propietario propio proponer propuesta protesta provincia proyecto proximidad proximo prudente prueba pruebas publicar publica publicacion publicado publico pudo pueblo puerta puerto pues puesto punto puntos pura puro qué que quedar queda quedo querer quiere quiso quien quienes quitar quiero rabia racional raiz rama rapido raro rato razon razonable razones rechazar rechaza rechazo rechazado rechazada reciban reciba recibir recibe recibio recibido reciente recientemente reclamo reclamar recoger recolectar recomendar recomienda recomendó reconocer reconoce reconoció reconocimiento recordar recuerda recordó recorrido recta rectangulo recto recurso recursos red redes reducir reduce reduzcamos refinar reflejar reformar refresco regalar regla reglamento regresar regresa regresó rehusar reir reina reino reir rejas relacionar relacion relacionado relacionar relativo religioso reloj remunerar remuneracion repartir reparto repetir replicar reportar reporte reporto representar republicano requerir requiere requerido reserva resistir resolver resuelve resolvió resolucion respetar respeto respetable responder responde respondió respuesta restablecer respaldar resto restaurante resultar resultado resultados resumir retener retirar retirarse retraso reunir reune reunio reunion revelar revisar revisa revise revisada revision revolucion revolver rey reyes rico riesgo riesgos rincon rio ritmo robar rodear rodilla rojo romper roto rosa rostro rueda ruidoso ruina rumbo rural ruso ruta saber sabe sabia sabian sacar saca saco salir sale salio salida saltar salto salud saludable saludo salvar salvajemente sano santo satisfaccion satisfecho satisfecho se sea seamos sean seguir sigue siguio segun segundo seguridad seguro seguros seis selva semana semanas semejante semestre semestres senado sencillo sentar sienta sento sentir siente sintio sentimiento separar sepulcro septiembre ser sera serio servicio servicios servir sirve sirvio sesenta setecientos setenta sexto si siempre siete siglo significado significar significativo siguiente silencio silla simple simpatico sin sincero sin singular sino siquiera sistema sistema sistemas sitio situacion sobre social sociedad socio sol solamente soldado soledad soler suele suelo solicitar solicita solicito solicitudes solicitud solo soltar solucion solucionar sombra sombrero soñar sopa sorprender sorpresa sostener subir subraya substancia suceder sucede sucedio sucesivo sudor suelo sueño sueno suficiente sufrir sugerir suma sumar superar superficie superior superintendencia suponer supone supuso supuesto sur surgir suspension suspender sustituir sustantivo suyo suya tabla tal taller tamaño tambien tampoco tan tanto tanta tantas tantos tarde tarea tareas tarjeta tecnico tecnologia tela telefono teléfonico tele teleser telematica television tema temas temer temprano tener tiene tuvo tenga tengan tenia tenian tengo tenemos tension teoria tercero tercera termo terminar terminar termina termino tarea texto textos tiempo tienda tiene tierra tipo titulo todo toda todos todas todavia tomar toma tomo torre total totalmente trabajo trabajador trabajadores trabajar trabaja trabajo traducir traer trae trajo trafico tragedia tramite tranquilo transitar transito transferir transcurrir transparencia tratar trata trato traves trazo tres trece treinta treinta tribu tribunal tribunal trigo triste tropas tu tuya tuyo tuyas tuyos ultimo ultimos ultima ultimas unidad unico unicos unico unidad universidad unidos universo uno unos usted ustedes usar usar uso utilizar va vacaciones vacio vagar vagamente valer vale valio valido valor valores variar varios vasos vaso vaya vayas veas vea ven venir viene vino venta ventana ventas ver vez voces vecino vehiculo veinte veintiuno velocidad vendedor vender vende vendio venir viene vino venta ventana ver verdad verdadero vergonzoso vertir verbal verbo verdad verde verdor veredas vestido vestir viaje viajar viajaron vida vidas viejo viejos viejas vienes vientos vieron viernes vigilancia vincular violencia violar virtud visitar visitan visito vista visto viuda vivir vive vivio vivido voluntad voluntario volver vuelve volvio voto voz vuelta vuelta y ya yo zona zonas
+acto actos acta actas actualidad actual actualmente actualizar actualiza acuerdo acudir acudira acudieron adecuar adecuado administrativa administrativo administracion adoptar adultos adversario afectar afecta afecto agradecer agradecemos agreso agrupar ajustar alentar alimento alquiler alterar alternativa amplio analisis analizar analiza anuncio aniversario aparte aplicacion apoyado apoyar apoyo apreciar aprovechar aproximadamente aprueban arancel arbitrario archivo archivos area areas argumento aspecto aspectos asistir asistio asociar atender atiende atendio atras autoridad autoridades auxiliar aval avance averiguar bachiller becas beneficio borrar boletin bono cabe cabecera caducar calendario calidad calificacion calificado calificar campus capacidad capaz capacitar capacitacion capital capitulo carga catalogo catedra cedula ceremonia certificado certificar chequear cifra cliente clientes cobrar coeficiente colaboracion colaborar colaborador colegio combinar comercio comision comisiones comite cometido cometio comparar comparten compartir compatible competencia completo complejo complemento complicado comprometer comprobar comprueba comprometido compuesto comunicar concentrar concretar condicion condiciones conexion confeccion confidencial conforme conformidad conjunto consecuencia consecuente consenso conservar consideracion consista consistente consolidar consolidacion constancia constante constituir consultar contabilidad contactar contenido contexto contribuir control controlar convenio convenir convocatoria coordinar coordinador coordinacion cordial correccion corregir correcto cortesia cotizar credenciales criterio cuenta cuotas curriculum curso decision decreto deducir defensa definitivo demora desempeñar desempeño detalle detalles diagnostico digital diploma diplomado dimension direccion disciplina diseno disponer disponibilidad distinguir docente domicilio efectivo egresado ejecutar elaborar electronico empresarial encargado encuesta enfasis enfoque enrol entidad entrega entregable equipo equivalencia escolaridad estimar estimulo estudio estudios estudiantil etapa evaluacion eventual exposicion expediente experiencia experto expirar expediente extracurricular extension extranjero factibilidad facultad fechas filtro firma forma formacion formal formato formulario foto fotografia funcionar funciones fundamento gestionar gestion homologar incidencia incluir incumple incumplio individual induccion influir influencia informar informe ingresar institucional inscripcion inscribirse interesado interno intercambio inversion investigador justificar justificacion lanzar laboratorio laboral legible legitimo legible letra licenciado liderar linea listado litera matriculacion media mediar mediocre membresia mencionar mencion mentor metodo modificar modificacion modulo monto motivar motivo movilidad nacional nominal nivel norma normativa notario obligacion oferta operar oportuno orden orientacion paquete pago panel parametros parametros pareceres participar participacion pendiente plan planificar plataforma plazo politica politico politicas portal posicion postergar postulacion practica practicas presentar prestador previo presupuesto privilegio procesar procesado proceso producto progreso protocolo proveedor proveedora prueba puntual puntualidad ramo reactivar realizar realiza realiz recopilar recibo regional regla reglamento regulacion regular relevante remoto reportar reporte requerimiento requerir requisito resolver resolucion responder responsabilidad responsable retirar retiro reunion revalidar revision rubrica rutina sancion seccion sede semestre seminario sesion solicitante solicitado solicitar solicitud solidaridad sostenibilidad subsidio sujeto sumario suspender suspension tarjeta temario tecnologia tema tesis tipo titulo trabajar traduccion tramite tramitar transferencia tutor turno unidad usuario utilidad valido validar valor variable variar verificar verificacion virtual visado vocacional voluntario zona
+`.trim().split(/\s+/));
+
+        // Distancia de Levenshtein optimizada (1D)
+        function levenshteinDist(a, b) {
+            if (a === b) return 0;
+            if (!a.length) return b.length;
+            if (!b.length) return a.length;
+            let prev = new Array(b.length + 1);
+            let curr = new Array(b.length + 1);
+            for (let j = 0; j <= b.length; j++) prev[j] = j;
+            for (let i = 1; i <= a.length; i++) {
+                curr[0] = i;
+                for (let j = 1; j <= b.length; j++) {
+                    curr[j] = a[i-1] === b[j-1]
+                        ? prev[j-1]
+                        : 1 + Math.min(prev[j-1], prev[j], curr[j-1]);
+                }
+                [prev, curr] = [curr, prev];
+            }
+            return prev[b.length];
+        }
+
+        function normalizarPal(s) {
+            return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        }
+
+        // Caché de resultados para no re-evaluar la misma palabra
+        const _cacheTypos = new Map();
+
+        // Detecta typos REALES (no tildes, no mayúsculas) en un texto.
+        // Retorna [{ encontrada, correcta }, ...]
+        function detectarTyposReales(texto) {
+            if (!texto) return [];
+            const typos = [];
+            const yaProcesadas = new Set();
+            const palabras = texto.match(/[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ]{4,}/g) || [];
+
+            for (const palabra of palabras) {
+                const norm = normalizarPal(palabra);
+                if (yaProcesadas.has(norm)) continue;
+                yaProcesadas.add(norm);
+
+                // Si la palabra normalizada YA está en el diccionario → escrita bien (solo tilde/mayúscula)
+                if (DICCIONARIO_ES.has(norm)) continue;
+                // Plural/sufijo flexivo común
+                if (norm.length > 5 && (
+                    DICCIONARIO_ES.has(norm.slice(0, -1)) ||
+                    DICCIONARIO_ES.has(norm.slice(0, -2)) ||
+                    DICCIONARIO_ES.has(norm.slice(0, -3))
+                )) continue;
+                // Sufijos verbales/derivativos: si la raíz está, ok
+                const rad = norm.replace(/(ando|iendo|ar|er|ir|ado|ido|ada|ida|amente|mente|cion|sion|dad|tad|aje|oso|osa|ico|ica)$/, '');
+                if (rad.length >= 4 && DICCIONARIO_ES.has(rad)) continue;
+
+                // Caché
+                if (_cacheTypos.has(norm)) {
+                    const cached = _cacheTypos.get(norm);
+                    if (cached) typos.push({ encontrada: palabra, correcta: cached });
+                    continue;
+                }
+
+                // Buscar match cercano por Levenshtein con filtro de longitud
+                const len = norm.length;
+                const maxDist = len <= 5 ? 1 : 2;
+                let mejor = null, mejorD = maxDist + 1;
+                for (const ref of DICCIONARIO_ES) {
+                    if (Math.abs(ref.length - len) > maxDist) continue;
+                    const d = levenshteinDist(norm, ref);
+                    if (d > 0 && d <= maxDist && d < mejorD) {
+                        mejorD = d;
+                        mejor = ref;
+                        if (d === 1) break;
+                    }
+                }
+
+                if (mejor) {
+                    _cacheTypos.set(norm, mejor);
+                    typos.push({ encontrada: palabra, correcta: mejor });
+                } else {
+                    _cacheTypos.set(norm, null);
+                }
+            }
+            return typos;
+        }
+
+        // Detecta frases de RIESGO LEGAL (devuelve array de matches únicos)
+        function detectarRiesgoLegalSmart(textoCompleto) {
+            if (!textoCompleto) return [];
+            const matches = new Set();
+            for (const patron of CRITERIOS_ALERTAS.riesgoLegalPatrones || []) {
+                patron.lastIndex = 0;
+                const res = textoCompleto.match(patron);
+                if (res) res.forEach(m => matches.add(m.toLowerCase().trim()));
+            }
+            return Array.from(matches);
+        }
 
         // ============================================
         // DICCIONARIO EXPANDIDO DE ALERTAS CRÍTICAS
@@ -1380,49 +1497,37 @@
                 'ignorante', 'insolente', 'altanero', 'desinteresado', 'apático'
             ],
             
-            // RIESGO LEGAL
-            riesgoLegal: [
-                'sernac', 'ministerio', 'reclamo', 'demanda', 'legal', 'legalidad',
-                'derecho', 'denuncia', 'abogado', 'tribunal', 'discriminación',
-                'ley', 'normativa', 'incumplimiento normativo', 'violación de derechos',
-                'cobro indebido', 'arancel sin justificación', 'violación', 'acoso',
-                'maltratos', 'abuso', 'fraude', 'estafa', 'engaño',
-                'incumplimiento contrato', 'contrato incumplido', 'clausula', 'reglamento',
-                'procedimiento irregular', 'ilegalidad', 'nulidad', 'recurso', 'apelación',
-                'ombudsman', 'superintendencia', 'fiscalía', 'juzgado', 'corte',
-                'deuda ilegal', 'cobro irregular', 'sanción injusta', 'expulsión injusta'
-            ],
-            
-            // DETECCIÓN LINGÜÍSTICA INTELIGENTE - sin diccionario fijo
-            // Usa reglas del español para detectar errores en CUALQUIER palabra
-            ortografiaPatrones: [
-                // ── REGLA UNIVERSAL: sufijos que SIEMPRE llevan tilde en español ──
-                // Cubre TODAS las palabras: situación, información, solución, educación...
-                { patron: /\b[a-záéíóúüñ]+cion(es)?\b/gi, palabra: 'falta tilde en sufijo -ción' },
-                { patron: /\b[a-záéíóúüñ]+sion(es)?\b/gi, palabra: 'falta tilde en sufijo -sión' },
-                { patron: /\b[a-záéíóúüñ]+icion(es)?\b/gi, palabra: 'falta tilde en sufijo -ición' },
-                // ── ESDRÚJULAS sin tilde: regla para -tico/-tica/-ico/-ica ──
-                // Cubre: específico, académico, técnico, práctico...
-                { patron: /\b[a-záéíóúüñ]{4,}[^aeiouáéíóú][aeiou]t?[ij]?[ck][oa]s?\b/gi, palabra: 'posible esdrújula sin tilde (-ico/-tico/-ica)' },
-                // ── ABREVIATURAS INFORMALES (patrones genéricos) ──
-                { patron: /\b(xq|pq|porq|tmb|tbn|tb|dnd|ntp|tqm|tki|pa|wn|nt|bn|qlq)\b/gi, palabra: 'abreviatura informal' },
-                { patron: /\bx\s+(?!(ray|favor|f[aá]v|defecto))[a-z]/gi, palabra: 'uso de "x" como "por"' },
-                { patron: /\bq\s+[a-záéíóúüñ]/gi, palabra: 'uso de "q" como "que"' },
-                { patron: /\bk\s+[a-záéíóúüñ]/gi, palabra: 'uso de "k" como "que"' },
-                // ── ERRORES FONÉTICOS FRECUENTES ──
-                { patron: /\bmotibo\b/gi, palabra: 'error: "motivo"' },
-                { patron: /\bhaber\b(?=\s+(?:mucho|poco|algo|nada|más|menos))/gi, palabra: 'posible confusión "haber/a ver"' },
-                { patron: /\baveces\b|\ba\s*veses\b/gi, palabra: 'error: "a veces"' },
-                { patron: /\balla\b(?!\s+(de|donde))/gi, palabra: 'posible confusión "allá/halla"' },
-                { patron: /\basta\b(?!\s+(la\s+vista|luego|pronto))/gi, palabra: 'posible error: "hasta"' },
-                // ── MAYÚSCULAS SOSTENIDAS (urgencia/falta de formato) ──
-                { patron: /\b[A-ZÁÉÍÓÚ]{5,}\b/g, palabra: 'texto en mayúsculas sostenidas' },
-                // ── PUNTUACIÓN EXCESIVA ──
-                { patron: /[!?]{2,}/g, palabra: 'puntuación excesiva' },
-                // ── CONCATENACIONES NUMÉRICAS INFORMALES ──
-                { patron: /\b(salu2|gra2|x2|tod2s?)\b/gi, palabra: 'escritura informal con números' },
-                // ── SEPARACIÓN INCORRECTA ──
-                { patron: /\bs\/r\b/gi, palabra: 'abreviatura "s/r"' }
+            // RIESGO LEGAL — patrones FRASE (no palabra suelta) para evitar falsos positivos.
+            // Las amenazas reales casi siempre vienen acompañadas de un verbo de acción
+            // o una entidad fiscalizadora explícita.
+            riesgoLegalPatrones: [
+                // Amenazas de acción legal explícitas
+                /\b(voy\s+a|ir(é|emos)\s+a|recurrir(é|emos)|acudir(é|emos)\s+(a|al))\s+(denunciar|demandar|sernac|tribunal(es)?|abogad[oa]s?|defensor[ií]a|ministerio|fiscal[ií]a|superintendencia|los\s+medios|la\s+prensa|contralor[ií]a)/gi,
+                /\b(present(ar(é|emos)?|aremos|aré)|interpondr(é|emos)|interponer(é|emos)?)\s+(una?\s+)?(denuncia|demanda|reclamo\s+(formal|legal)|querella|recurso\s+(de\s+)?(protecci[oó]n|apelaci[oó]n)|acci[oó]n\s+legal)/gi,
+                /\b(estoy|estamos|me\s+veo)\s+(en\s+la\s+(obligaci[oó]n|necesidad)\s+de|obligad[oa]s?\s+a)\s+(denunciar|demandar|proceder\s+legalmente)/gi,
+                /\b(tomar(é|emos)|toma(re|remos))\s+(acciones?|medidas?|v[ií]as?)\s+legal(es)?/gi,
+                // Entidades fiscalizadoras / autoridades mencionadas directamente
+                /\b(sernac|defensor[ií]a\s+del\s+(consumidor|estudiante)|superintendencia\s+de\s+educaci[oó]n|contralor[ií]a|ombudsman|seremi\s+de\s+educaci[oó]n|fiscal[ií]a|ministerio\s+de\s+educaci[oó]n)\b/gi,
+                // Calificaciones jurídicas
+                /\b(es|sería|constituye|configura)\s+(un|una)\s+(delito|fraude|estafa|abuso(\s+sexual)?|discriminaci[oó]n|crimen|infracci[oó]n\s+grave)/gi,
+                /\b(viol[oa](ci[oó]n|n|do|ron)?|vulner(an?|a(ci[oó]n)?|ó|aron))\s+(la|el|los|las|mis|nuestros?)\s+(ley(es)?|normativa|reglamento|derechos?|contrato|estatuto|debido\s+proceso)/gi,
+                // Cobros / procedimientos irregulares
+                /\bcobro\s+(indebido|irregular|ilegal|abusivo|sin\s+(justificaci[oó]n|fundamento))/gi,
+                /\b(arancel|matr[ií]cula)\s+(sin\s+justificaci[oó]n|cobrad[oa]\s+(de\s+m[aá]s|indebidamente))/gi,
+                // Fraude / falsificación
+                /\b(falsific(aci[oó]n|ado|aron)|fraud(e|ulento)|estaf(a|ar(on|án|ían)))/gi,
+                // Gravedad: acoso / hostigamiento / maltrato
+                /\b(acoso\s+(sexual|laboral|escolar)?|maltrato\s+(verbal|psicol[oó]gico|f[ií]sico)|hostigamiento|amenazas?\s+(directas?|expl[ií]citas?)|coacci[oó]n)/gi,
+                // Difusión pública / mediática
+                /\b(redes\s+sociales|twitter|instagram|facebook|tiktok|prensa|medios\s+de\s+comunicaci[oó]n|periodista|reportaje)\s+(para\s+)?(denunciar|exponer|mostrar|hacer\s+p[uú]blic[oa]|viralizar)/gi,
+                /\b(carta\s+(certificada|notarial)|notario|acta\s+notarial)/gi,
+                // Exigencias formales con base legal
+                /\b(exijo|exigimos|reclam(o|amos)|solicito\s+formalmente)\s+(la\s+)?(devoluci[oó]n|restituci[oó]n|reembolso|indemnizaci[oó]n|compensaci[oó]n|reparaci[oó]n)/gi,
+                /\b(recurso\s+de\s+(protecci[oó]n|amparo|reposici[oó]n|jer[aá]rquico)|nulidad\s+(de\s+derecho\s+p[uú]blico)?)/gi,
+                // Plazo legal / vencimiento normativo
+                /\b(plazo\s+legal\s+vencido|fuera\s+del\s+plazo\s+legal|infracci[oó]n\s+al\s+(reglamento|estatuto))/gi,
+                // Mención de leyes específicas
+                /\b(ley\s+(n[°º]?\s*)?\d+|c[oó]digo\s+(civil|penal|del\s+consumidor)|art[ií]culo\s+\d+)/gi
             ],
             
             // FRUSTRACIÓN DEL ESTUDIANTE
@@ -1494,18 +1599,29 @@
                 if (tipo === 'incongruencia') {
                     palabrasResaltar = [...CRITERIOS_ALERTAS.renuncia, ...CRITERIOS_ALERTAS.suspension];
                 } else if (tipo === 'riesgo_legal') {
-                    palabrasResaltar = CRITERIOS_ALERTAS.riesgoLegal;
+                    // Destacar las FRASES exactas detectadas, no palabras sueltas
+                    (alerta.frasesLegales || []).forEach(frase => {
+                        if (!frase) return;
+                        const safe = frase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const regex = new RegExp(`(${safe})`, 'gi');
+                        textoModificado = textoModificado.replace(regex,
+                            `<span class="highlight-riesgo-legal" title="Riesgo legal detectado">$1</span>`);
+                    });
+                    return;
                 } else if (tipo === 'queja_personal') {
                     palabrasResaltar = CRITERIOS_ALERTAS.quejaPersonal;
                 } else if (tipo === 'demora') {
                     palabrasResaltar = CRITERIOS_ALERTAS.demoraResponsible;
                 } else if (tipo === 'ortografia') {
-                    // Para ortografía, usar patrones regex
-                    CRITERIOS_ALERTAS.ortografiaPatrones.forEach(item => {
-                        textoModificado = textoModificado.replace(item.patron, 
-                            `<span class="highlight-ortografia">$&</span>`);
+                    // Destacar las palabras MAL escritas con tooltip de corrección sugerida
+                    (alerta.typosFuncionario || []).forEach(t => {
+                        if (!t.encontrada) return;
+                        const safe = t.encontrada.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const regex = new RegExp(`\\b(${safe})\\b`, 'gi');
+                        textoModificado = textoModificado.replace(regex,
+                            `<span class="highlight-ortografia" title="Sugerencia: ${t.correcta}">$1</span>`);
                     });
-                    return; // Saltar al siguiente tipo
+                    return;
                 } else if (tipo === 'frustracion') {
                     palabrasResaltar = CRITERIOS_ALERTAS.frustracion;
                 } else if (tipo === 'urgencia') {
@@ -1738,19 +1854,23 @@
                 servicio: servicio,
                 descripcion: descripcion,
                 resolucion: resolucion,
-                palabrasDetectadas: []
+                palabrasDetectadas: [],
+                typosFuncionario: [],      // [{ encontrada, correcta }] — solo del funcionario
+                frasesLegales: []          // [string] — frases textuales que disparan riesgo legal
             };
 
             // 1. INCONGRUENCIAS
-            if (CRITERIOS_ALERTAS.renuncia.some(p => textoCompleto.includes(p.toLowerCase())) && 
+            if (CRITERIOS_ALERTAS.renuncia.some(p => textoCompleto.includes(p.toLowerCase())) &&
                 CRITERIOS_ALERTAS.suspension.some(p => textoCompleto.includes(p.toLowerCase()))) {
                 alerta.tipo.push('incongruencia');
             }
 
-            // 2. RIESGO LEGAL - SOLO EN TEXTO DEL ALUMNO
-            const palabrasLegales = CRITERIOS_ALERTAS.riesgoLegal.filter(p => textoAlumno.includes(p.toLowerCase()));
-            if (palabrasLegales.length > 0) {
+            // 2. RIESGO LEGAL — INTELIGENTE, EN AMBOS TEXTOS (alumno + funcionario)
+            //    Usa patrones de FRASE para detectar amenazas/reclamos reales, no palabras sueltas
+            const frasesLegales = detectarRiesgoLegalSmart(textoCompleto);
+            if (frasesLegales.length > 0) {
                 alerta.tipo.push('riesgo_legal');
+                alerta.frasesLegales = frasesLegales;
             }
 
             // 3. QUEJAS PERSONAL - SOLO EN TEXTO DEL ALUMNO
@@ -1764,35 +1884,14 @@
             if (palabrasDemora.length > 0) {
                 alerta.tipo.push('demora');
             }
-            // 5. FALTAS ORTOGRÁFICAS - DETECCIÓN LINGÜÍSTICA SIN DICCIONARIO
-            // Aplica reglas gramaticales del español a cualquier palabra del texto
-            let tieneFaltasOrto = false;
 
-            // Patrones lingüísticos universales
-            CRITERIOS_ALERTAS.ortografiaPatrones.forEach(item => {
-                item.patron.lastIndex = 0;
-                if (item.patron.test(textoFuncionario)) {
-                    tieneFaltasOrto = true;
-                }
-            });
-
-            if (!tieneFaltasOrto && textoFuncionario) {
-                // REGLA UNIVERSAL: analizar cada token con reglas lingüísticas del español
-                const tokens = textoFuncionario.split(/[\s,;:.!?()\[\]]+/).filter(t => t.length > 2);
-                for (const token of tokens) {
-                    const pal = token.toLowerCase();
-                    const sinTilde = pal.normalize("NFD").replace(/[̀-ͯ]/g, "");
-                    if (sinTilde === pal) {
-                        // Sufijos que SIEMPRE llevan tilde en español
-                        if (/cion(es)?$|sion(es)?$|icion(es)?$/.test(pal)) {
-                            tieneFaltasOrto = true; break;
-                        }
-                    }
-                }
-            }
-
-            if (tieneFaltasOrto) {
+            // 5. TYPOS REALES — SOLO EN TEXTO DEL FUNCIONARIO
+            //    Ignora errores de tilde y mayúsculas. Detecta letra cambiada,
+            //    faltante o extra (s↔z↔c, b↔v, falta de h, ll↔y, etc.)
+            const typos = detectarTyposReales(resolucion || '');
+            if (typos.length > 0) {
                 alerta.tipo.push('ortografia');
+                alerta.typosFuncionario = typos;
             }
 
             // 6. FRUSTRACIÓN DEL ESTUDIANTE - SOLO EN TEXTO DEL ALUMNO
@@ -1855,7 +1954,9 @@
             const rechazadas = datosResueltas.filter(d => d['Sub Estado'] === 'Rechazado' || d['Sub Estado'] === 'Rechazado por Duplicidad').length;
             const parciales = datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado Parcialmente').length;
 
-            const satisfaccion = total > 0 ? ((aprobadas * 100 + parciales * 50) / (total * 100) * 100).toFixed(1) : 0;
+            const tiempoPromedioSede = dataAnalytics.tiemposRespuesta.length > 0
+                ? (dataAnalytics.tiemposRespuesta.reduce((a, b) => a + b, 0) / dataAnalytics.tiemposRespuesta.length).toFixed(1)
+                : '—';
 
             document.getElementById('kpi-total').textContent = total;
             document.getElementById('kpi-aprobadas').textContent = aprobadas;
@@ -1864,7 +1965,7 @@
             document.getElementById('kpi-rechazadas-pct').textContent = `${total > 0 ? ((rechazadas/total)*100).toFixed(1) : 0}%`;
             document.getElementById('kpi-parciales').textContent = parciales;
             document.getElementById('kpi-parciales-pct').textContent = `${total > 0 ? ((parciales/total)*100).toFixed(1) : 0}%`;
-            document.getElementById('kpi-satisfaccion').textContent = `${satisfaccion}%`;
+            document.getElementById('kpi-tiempo-promedio').textContent = tiempoPromedioSede;
             document.getElementById('kpi-alertas').textContent = dataAnalytics.alertas.length;
 
             document.getElementById('uploadInfo').innerHTML = `
@@ -1963,14 +2064,15 @@
             const html = colaboradores.map((c, idx) => {
                 const tasa = c.total > 0 ? ((c.aprobadas / c.total) * 100).toFixed(1) : 0;
                 const promMov = c.total > 0 ? (c.movimientosTotal / c.total).toFixed(1) : 0;
-                const promTiempo = c.tiemposRespuesta.length > 0 ? 
+                const promTiempo = c.tiemposRespuesta.length > 0 ?
                     (c.tiemposRespuesta.reduce((a, b) => a + b, 0) / c.tiemposRespuesta.length).toFixed(1) : 'N/A';
                 const totalAlertas = c.alertas.incongruencias + c.alertas.riesgoLegal + c.alertas.quejaPersonal + c.alertas.demora;
-                
+                const nombreSeguro = c.nombre.replace(/"/g, '&quot;');
+
                 return `
-                    <tr>
+                    <tr onclick="abrirModalColaborador('${nombreSeguro}')" style="cursor:pointer;" title="Ver reporte completo">
                         <td>${idx + 1}</td>
-                        <td><strong>${c.nombre}</strong></td>
+                        <td><strong style="color:var(--info);text-decoration:underline dotted;">${c.nombre}</strong></td>
                         <td>${c.total}</td>
                         <td><span style="color: ${tasa >= 80 ? '#27AE60' : tasa >= 60 ? '#F39C12' : '#E74C3C'}; font-weight: 700;">${tasa}%</span></td>
                         <td>${promTiempo !== 'N/A' ? `${promTiempo} días` : 'N/A'}</td>
@@ -2091,9 +2193,39 @@
             document.getElementById('alertaAprobacionDudosa').textContent = aprobacionDudosa;
         }
 
+        // Renderiza el desglose forense: typos del funcionario + frases legales detectadas
+        function renderDetallesForenses(alerta) {
+            let html = '';
+            if (alerta.typosFuncionario && alerta.typosFuncionario.length > 0) {
+                const items = alerta.typosFuncionario.map(t =>
+                    `<div style="display:flex;gap:.5rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--border-color);font-size:.85rem;">
+                        <span style="color:var(--danger);font-weight:700;">"${t.encontrada}"</span>
+                        <span style="color:var(--text-muted);">→</span>
+                        <span style="color:var(--success);font-weight:700;">"${t.correcta}"</span>
+                    </div>`
+                ).join('');
+                html += `
+                    <div style="margin-top:1rem;padding:1rem;background:rgba(59,130,246,0.06);border-left:3px solid var(--info);border-radius:6px;">
+                        <strong style="color:var(--info);">✏️ Errores ortográficos del funcionario (${alerta.typosFuncionario.length}):</strong>
+                        <div style="margin-top:.5rem;">${items}</div>
+                    </div>`;
+            }
+            if (alerta.frasesLegales && alerta.frasesLegales.length > 0) {
+                const items = alerta.frasesLegales.map(f =>
+                    `<div style="padding:.35rem 0;border-bottom:1px solid var(--border-color);font-size:.85rem;color:var(--danger);font-weight:600;">⚠️ "${f}"</div>`
+                ).join('');
+                html += `
+                    <div style="margin-top:1rem;padding:1rem;background:rgba(239,68,68,0.06);border-left:3px solid var(--danger);border-radius:6px;">
+                        <strong style="color:var(--danger);">⚖️ Frases de riesgo legal detectadas (${alerta.frasesLegales.length}):</strong>
+                        <div style="margin-top:.5rem;">${items}</div>
+                    </div>`;
+            }
+            return html;
+        }
+
         function actualizarDetalleAlertas() {
             let html = '';
-            
+
             dataAnalytics.alertas.forEach(alerta => {
                 const tiposAlerta = alerta.tipo.map(t => {
                     const iconos = {
@@ -2141,6 +2273,7 @@
                                 ${resolucionDestacada || '<em style="color: var(--secondary);">Sin respuesta registrada</em>'}
                             </div>
                         </div>
+                        ${renderDetallesForenses(alerta)}
                     </div>
                 `;
             });
@@ -2205,6 +2338,7 @@
                                 ${resolucionDestacada || '<em style="color: var(--secondary);">Sin respuesta registrada</em>'}
                             </div>
                         </div>
+                        ${renderDetallesForenses(alerta)}
                     </div>
                 `;
             });
@@ -2552,6 +2686,133 @@
             document.getElementById('modalSolicitud').classList.remove('show');
         }
 
+        // ============================================
+        // MODAL FUNCIONARIO — Reporte completo
+        // ============================================
+        function abrirModalColaborador(nombre) {
+            const c = dataAnalytics.colaboradores[nombre];
+            if (!c) return;
+
+            const tasa = c.total > 0 ? ((c.aprobadas / c.total) * 100).toFixed(1) : 0;
+            const tasaRech = c.total > 0 ? ((c.rechazadas / c.total) * 100).toFixed(1) : 0;
+            const promMov = c.total > 0 ? (c.movimientosTotal / c.total).toFixed(2) : 0;
+            const promTiempo = c.tiemposRespuesta.length > 0
+                ? (c.tiemposRespuesta.reduce((a, b) => a + b, 0) / c.tiemposRespuesta.length).toFixed(1) : 'N/A';
+            const tiempoMin = c.tiemposRespuesta.length > 0 ? Math.min(...c.tiemposRespuesta) : 'N/A';
+            const tiempoMax = c.tiemposRespuesta.length > 0 ? Math.max(...c.tiemposRespuesta) : 'N/A';
+
+            // Promedios de sede para comparar
+            const sedeTasa = datosResueltas.length > 0
+                ? ((datosResueltas.filter(d => d['Sub Estado'] === 'Aprobado').length / datosResueltas.length) * 100).toFixed(1) : 0;
+            const sedePromTiempo = dataAnalytics.tiemposRespuesta.length > 0
+                ? (dataAnalytics.tiemposRespuesta.reduce((a, b) => a + b, 0) / dataAnalytics.tiemposRespuesta.length).toFixed(1) : 'N/A';
+
+            // Alertas de este funcionario
+            const alertasColab = dataAnalytics.alertas.filter(a => a.propietario === nombre);
+            const conteoAlertas = {
+                incongruencia: alertasColab.filter(a => a.tipo.includes('incongruencia')).length,
+                riesgo_legal: alertasColab.filter(a => a.tipo.includes('riesgo_legal')).length,
+                queja_personal: alertasColab.filter(a => a.tipo.includes('queja_personal')).length,
+                demora: alertasColab.filter(a => a.tipo.includes('demora')).length,
+                ortografia: alertasColab.filter(a => a.tipo.includes('ortografia')).length,
+                frustracion: alertasColab.filter(a => a.tipo.includes('frustracion')).length,
+                urgencia: alertasColab.filter(a => a.tipo.includes('urgencia')).length,
+                incumplimiento: alertasColab.filter(a => a.tipo.includes('incumplimiento')).length,
+                documentacion: alertasColab.filter(a => a.tipo.includes('documentacion')).length
+            };
+
+            // Servicios más frecuentes
+            const servCount = {};
+            c.solicitudes.forEach(s => { servCount[s.servicio] = (servCount[s.servicio] || 0) + 1; });
+            const topServicios = Object.entries(servCount).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+            // Estados breakdown
+            const estados = { Aprobado: c.aprobadas, Rechazado: c.rechazadas, Parcial: c.parciales };
+
+            // Comparación vs sede
+            const compTasa = (parseFloat(tasa) - parseFloat(sedeTasa)).toFixed(1);
+            const compTiempo = (promTiempo !== 'N/A' && sedePromTiempo !== 'N/A')
+                ? (parseFloat(promTiempo) - parseFloat(sedePromTiempo)).toFixed(1) : null;
+
+            const html = `
+                <!-- KPIs principales -->
+                <div class="stats-grid" style="margin-bottom:1.5rem;">
+                    <div class="stat-box"><div class="stat-number">${c.total}</div><div class="stat-label">Total Solicitudes</div></div>
+                    <div class="stat-box"><div class="stat-number" style="color:var(--success);">${c.aprobadas}</div><div class="stat-label">Aprobadas (${tasa}%)</div></div>
+                    <div class="stat-box"><div class="stat-number" style="color:var(--danger);">${c.rechazadas}</div><div class="stat-label">Rechazadas (${tasaRech}%)</div></div>
+                    <div class="stat-box"><div class="stat-number" style="color:var(--warning);">${c.parciales}</div><div class="stat-label">Parciales</div></div>
+                </div>
+
+                <!-- Tiempos -->
+                <div class="card" style="margin-bottom:1.25rem;background:rgba(59,130,246,0.05);">
+                    <div class="card-title" style="font-size:.85rem;margin-bottom:.75rem;">⏱️ Tiempos de Respuesta</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;">
+                        <div><div style="font-size:1.5rem;font-weight:800;color:var(--info);">${promTiempo}${promTiempo!=='N/A'?' días':''}</div><div style="font-size:.7rem;color:var(--text-muted);">Promedio</div></div>
+                        <div><div style="font-size:1.5rem;font-weight:800;color:var(--success);">${tiempoMin}${tiempoMin!=='N/A'?' días':''}</div><div style="font-size:.7rem;color:var(--text-muted);">Más rápido</div></div>
+                        <div><div style="font-size:1.5rem;font-weight:800;color:var(--danger);">${tiempoMax}${tiempoMax!=='N/A'?' días':''}</div><div style="font-size:.7rem;color:var(--text-muted);">Más lento</div></div>
+                        <div><div style="font-size:1.5rem;font-weight:800;color:var(--secondary);">${promMov}</div><div style="font-size:.7rem;color:var(--text-muted);">Mov. prom.</div></div>
+                    </div>
+                </div>
+
+                <!-- Comparación vs Sede -->
+                <div class="card" style="margin-bottom:1.25rem;">
+                    <div class="card-title" style="font-size:.85rem;margin-bottom:.75rem;">⚖️ Comparación vs Sede</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:.9rem;">
+                        <div>
+                            <div style="color:var(--text-muted);font-size:.75rem;">Tasa de Aprobación</div>
+                            <div><strong>${tasa}%</strong> vs <span style="color:var(--text-muted);">${sedeTasa}% sede</span></div>
+                            <div style="color:${compTasa >= 0 ? 'var(--success)' : 'var(--danger)'};font-weight:700;">${compTasa >= 0 ? '+' : ''}${compTasa}% ${compTasa >= 0 ? '✓ sobre la media' : '✗ bajo la media'}</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-muted);font-size:.75rem;">Tiempo Respuesta</div>
+                            <div><strong>${promTiempo}${promTiempo!=='N/A'?' d':''}</strong> vs <span style="color:var(--text-muted);">${sedePromTiempo}${sedePromTiempo!=='N/A'?' d':''} sede</span></div>
+                            ${compTiempo !== null ? `<div style="color:${compTiempo <= 0 ? 'var(--success)' : 'var(--danger)'};font-weight:700;">${compTiempo > 0 ? '+' : ''}${compTiempo} días ${compTiempo <= 0 ? '✓ más rápido' : '✗ más lento'}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas desglose -->
+                <div class="card" style="margin-bottom:1.25rem;background:rgba(239,68,68,0.04);">
+                    <div class="card-title" style="font-size:.85rem;margin-bottom:.75rem;">🚨 Alertas Detectadas (${alertasColab.length})</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+                        ${Object.entries(conteoAlertas).filter(([k,v]) => v > 0).map(([k,v]) => {
+                            const labels = {incongruencia:'🔄 Incongruencias',riesgo_legal:'⚖️ Riesgo Legal',queja_personal:'😠 Quejas',demora:'⏱️ Demoras',ortografia:'✏️ Ortografía',frustracion:'😢 Frustración',urgencia:'🔴 Urgencia',incumplimiento:'⚠️ Incumplim.',documentacion:'📄 Doc. Insuf.'};
+                            return `<span class="status-badge" style="background:rgba(239,68,68,0.12);color:var(--danger);">${labels[k]||k}: ${v}</span>`;
+                        }).join('') || '<em style="color:var(--text-muted);">Sin alertas registradas ✓</em>'}
+                    </div>
+                </div>
+
+                <!-- Top servicios -->
+                <div class="card" style="margin-bottom:1.25rem;">
+                    <div class="card-title" style="font-size:.85rem;margin-bottom:.75rem;">📋 Servicios más frecuentes</div>
+                    ${topServicios.length > 0 ? topServicios.map(([s, n]) => `
+                        <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border-color);font-size:.85rem;">
+                            <span>${s}</span><strong>${n} (${((n/c.total)*100).toFixed(0)}%)</strong>
+                        </div>`).join('') : '<em style="color:var(--text-muted);">Sin datos</em>'}
+                </div>
+
+                <!-- Lista de solicitudes (últimas 30) -->
+                <div class="card">
+                    <div class="card-title" style="font-size:.85rem;margin-bottom:.75rem;">📝 Solicitudes (mostrando ${Math.min(30, c.solicitudes.length)} de ${c.solicitudes.length})</div>
+                    <div style="max-height:300px;overflow-y:auto;">
+                        ${c.solicitudes.slice(0, 30).map(s => `
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem;border-bottom:1px solid var(--border-color);font-size:.82rem;">
+                                <div><strong>${s.numero}</strong> · ${(s.servicio || 'N/A').substring(0, 40)}</div>
+                                <span class="status-badge status-${(s.estado || '').toLowerCase().replace(/\s+/g, '-')}" style="background:${s.estado === 'Aprobado' ? 'var(--success-light)' : s.estado && s.estado.includes('Rechaz') ? 'var(--danger-light)' : 'var(--warning-light)'};color:${s.estado === 'Aprobado' ? 'var(--success)' : s.estado && s.estado.includes('Rechaz') ? 'var(--danger)' : 'var(--warning)'};">${s.estado || 'N/A'}</span>
+                            </div>`).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalColaboradorTitulo').textContent = `👤 Reporte: ${nombre}`;
+            document.getElementById('modalColaboradorBody').innerHTML = html;
+            document.getElementById('modalColaborador').classList.add('show');
+        }
+
+        function cerrarModalColaborador() {
+            document.getElementById('modalColaborador').classList.remove('show');
+        }
+
         // ── INIT ────────────────────────────────────────
         cargarTema();
         actualizarReloj();
@@ -2597,6 +2858,8 @@
         window.addEventListener('click', function(e) {
             const modal = document.getElementById('modalSolicitud');
             if (e.target === modal) cerrarModal();
+            const modalC = document.getElementById('modalColaborador');
+            if (e.target === modalC) cerrarModalColaborador();
         });
 
         // ── FILE UPLOAD (click + drag-and-drop) ───────────
