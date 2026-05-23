@@ -218,6 +218,38 @@
             letter-spacing: 0.3px;
         }
 
+        .header-data-range {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.18rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(245,197,24,0.22);
+            border-radius: 10px;
+            padding: 0.4rem 0.85rem;
+        }
+        .header-data-range.visible { display: flex; }
+        .data-range-label {
+            color: rgba(245,197,24,0.8);
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+        .data-range-dates {
+            color: #FFFFFF;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        .data-range-carga {
+            color: rgba(255,255,255,0.45);
+            font-size: 0.58rem;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+
         .theme-toggle {
             width: 64px;
             height: 34px;
@@ -739,6 +771,7 @@
             .header-titulo-principal { font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .header-subtitulo { display: none; }
             .header-clock { display: none; }
+            .header-data-range { display: none !important; }
 
             /* Layout principal */
             .main-content { margin-left: 0; padding-top: var(--header-h); }
@@ -839,6 +872,11 @@
             <div class="header-left">
                 <div class="header-titulo-principal">Duoc UC — Sede Viña del Mar</div>
                 <div class="header-subtitulo">Subdirección Académica · CRM Dashboard</div>
+            </div>
+            <div class="header-data-range" id="headerDataRange">
+                <div class="data-range-label">Período de datos</div>
+                <div class="data-range-dates" id="dataRangeDates">—</div>
+                <div class="data-range-carga" id="dataRangeCarga">—</div>
             </div>
             <div class="header-clock">
                 <span class="clock-icon">🕐</span>
@@ -1974,6 +2012,24 @@ acto actos acta actas actualidad actual actualmente actualizar actualiza acuerdo
                 <p>📊 <strong>Colaboradores:</strong> ${Object.keys(dataAnalytics.colaboradores).length}</p>
                 <p>🚨 <strong>Alertas Críticas:</strong> ${dataAnalytics.alertas.length}</p>
             `;
+
+            // Rango de fechas de los datos cargados
+            const todasFechas = [...datosResueltas, ...datosActivas]
+                .map(d => d['Fecha de creación'])
+                .filter(Boolean)
+                .map(f => new Date(f))
+                .filter(d => !isNaN(d));
+            if (todasFechas.length > 0) {
+                const fMin = new Date(Math.min(...todasFechas));
+                const fMax = new Date(Math.max(...todasFechas));
+                const fmt = d => d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+                const ahora = new Date();
+                const fmtCarga = ahora.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })
+                    + ' ' + ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('dataRangeDates').textContent = `${fmt(fMin)} → ${fmt(fMax)}`;
+                document.getElementById('dataRangeCarga').textContent = `Última carga: ${fmtCarga}`;
+                document.getElementById('headerDataRange').classList.add('visible');
+            }
 
             crearGraficos();
             poblarFiltros();
